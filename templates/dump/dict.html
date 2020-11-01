@@ -1,0 +1,13 @@
+{% extends 'theme.html' %}
+{% block body %}
+    <table class="table table-bordered">
+        <tbody>
+        {% for key, val in data.items() %}
+            <tr>
+                <td class="heading">{{ key }}</td>
+                <td>{{ val }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,12 @@
+Backend:
+- Finish Manage
+    - Edit existing
+    - Delete
+- Add basic Login
+    - OAuth (facebook/instagram, twitter)
+- Low: Add share button
+
+UI:
+- Switch to https://fezvrasta.github.io/bootstrap-material-design/docs/4.0/bootstrap-components/navbar/
+- Better Manage/Generate Page
+-

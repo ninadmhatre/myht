@@ -1,0 +1,13 @@
+.page-adjust {
+    min-height: 100vh;
+    padding-top: 100px;
+    padding-bottom:30px;
+}
+
+.mark-deleted::after {
+    content: "";
+    font-size: 5px;
+}
+#rm-field:checked ~ .mark-deleted::after {
+    content: "❌";
+}

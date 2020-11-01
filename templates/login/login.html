@@ -1,0 +1,31 @@
+{% extends 'theme.html' %}
+{% import 'macro/display_helper.html' as helper %}
+
+
+{% block body %}
+    <div class="container  page-adjust">
+        <div class="row">
+            <div class="card w-100">
+                <div class="card-header bg-primary">
+                    <div class="d-flex">
+                        <div class="mr-auto p-2">Login</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="login-form" action="" method="post">
+                    {{ helper.addCSRFToken() }}
+                    <div class="form-group row">
+                        <input id="login_username" name="user" class="form-control" type="text" placeholder="Username" required>
+                    </div>
+                    <div class="form-group row">
+                        <input id="login_password" name="chaabi" class="form-control" type="password" placeholder="Password" required>
+                    </div>
+                    <div class="row justify-content-between">
+                        <button id="login" type="submit" class="btn btn-success">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

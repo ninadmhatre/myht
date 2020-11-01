@@ -1,0 +1,140 @@
+{% extends 'theme.html' %}
+{% import 'macro/display_helper.html' as helper %}
+
+{% block title %}Add Tags{% endblock %}
+
+{% block jquery %}
+
+    /*
+       TODO:
+        1. tags without spaces
+        2. max tags per category
+    */
+    $("#add_tags").submit(function(e) {
+        e.preventDefault();
+
+        let errCnt = 0;
+        let catArr = [];
+
+        for (var i = 0; i < 10; i++) {
+            var cat = $("input.cat_" + i);
+            var tag = $("input.tag_" + i);
+
+            var cat_len = cat.val().length;
+            var tag_len = tag.val().length;
+
+            if ( cat_len == 0 ) {
+                if ( tag_len != 0 ) {
+                    cat.addClass("has_error");
+                    errCnt++;
+                } else {
+                    cat.removeClass("has_error");
+                }
+            } else {
+                var catName = cat.val();
+                if ( catArr.indexOf(catName) != -1 ) {
+                    $.notify("Duplicate category [" + catName + "]!", "error");
+                    tag.addClass("has_error");
+                    errCnt++;
+                } else {
+                    tag.removeClass("has_error");
+                    catArr.push(catName);
+                }
+
+                if ( tag_len == 0 ) {
+                    tag.addClass("has_error");
+                } else {
+                    tag.removeClass("has_error");
+                }
+            }
+        }
+
+        if ( errCnt > 0 ) {
+            $.notify("validation failed, please check!!", "error");
+        } else {
+            e.currentTarget.submit();
+        }
+
+    });
+{% endblock %}
+
+{% block body %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="row" style="padding-top: 80px;">
+                <div class="col-md-6 col-md-offset-3">
+                <div class="alert alert-{{category}} alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    {{ message }}
+                </div>
+                </div>
+             </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="container page-adjust">
+        <div class="row">
+            <div class="card w-100">
+                <div class="card-header bg-primary">
+                <div class="d-flex">
+                    <div class="mr-auto p-2">Add New Tags</div>
+                    <div class="p-2">
+                        <a class="text-right text-dark" href="https://emojipedia.org/" target="_blank">Want to add emojis?</a>
+                    </div>
+                </div>
+            </div>
+                <div class="card-body">
+                    <div class="alert alert-primary" role="alert">
+                        You can add maximum 10 categories and up to 30 comma separated tags per category
+                    </div>
+                    {% if not error %}
+                        {% if existing %}
+                            {% set more_allowed = 10 - existing|length %}
+                        {% else %}
+                            {% set more_allowed = 10 %}
+                        {% endif %}
+                        <div class="container">
+                        <form id="add_tags" action="" method="post" enctype="multipart/form-data">
+                            {{ helper.addCSRFToken() }}
+
+                            {% for cat in existing %}
+
+                            {% set idx_str = loop.index0|string %}
+                            {% set cat_name_id = ("cat_" + idx_str)|obscure %}
+                            {% set tag_name_id = ("tag_" + idx_str)|obscure %}
+
+                            <div class="form-group row justify-content-between">
+                                <input class="form-control col-3 cat" name="{{ cat_name_id }}" id="{{ cat_name_id }}" value="{{ cat }}" disabled="disabled"/>
+                                <input class="form-control col-8 tag" name="{{ tag_name_id }}" id="{{ tag_name_id }}" value="{{ existing[cat]|join(', ') }}" disabled="disabled"/>
+                            </div>
+                            {% endfor %}
+
+                            {% for j in range(existing|length, 11) %}
+                            {% set j_str = j|string %}
+                            {% set new_cat_name_id = ("cat_" + j_str)|obscure %}
+                            {% set new_tag_name_id = ("tag_" + j_str)|obscure %}
+                            <div class="form-group row justify-content-between">
+                                <input class="form-control col-3 cat" name="{{ new_cat_name_id }}" id="{{ new_cat_name_id }}" type="text" placeholder="Category"/>
+                                <input  class="form-control col-8 tag" name="{{ new_tag_name_id }}" id="{{ new_tag_name_id }}" type="text" placeholder="Tags e.g water,rain,earth"/>
+                            </div>
+                            {% endfor %}
+
+                            <div class="row justify-content-between">
+                                <button id="save" type="submit" class="btn btn-success">Save</button>
+                            </div>
+                        </form>
+                        </div>
+                    {% else %}
+                        {% for c in data %}
+                            <p>category : {{ c }} | tags: {{ data[c] }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

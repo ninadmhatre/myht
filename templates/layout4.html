@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Site to help you organize your hashtags! S.Y.T">
+    <meta name="author" content="Ninad Mhatre">
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='myht.ico') }}">
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='js/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/myht.css') }}" rel="stylesheet">
+
+    <!-- Custom fonts for this template -->
+    <link href="{{ url_for('static', filename='js/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='js/simple-line-icons/css/simple-line-icons.css') }}">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Muli" rel="stylesheet">
+
+    <!-- Plugin CSS -->
+<!--    <link rel="stylesheet" href="device-mockups/device-mockups.min.css">-->
+
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='css/theme-new-age.css') }}" rel="stylesheet">
+
+    <style type="text/css">
+        .dropdown:hover>.dropdown-menu {
+          display: block;
+        }
+        .dropdown-item:hover>.dropdown-menu {
+          display: block;
+        }
+        ul li{
+        list-style-type:none;
+        display: inline;
+        }
+
+        .navbar-nav .nav-link{display:inline-block;}
+
+        .ml-auto {display:inline-block!important;}
+
+        .dropdown>.dropdown-toggle:active {
+          pointer-events: none;
+        }
+
+        .has_error {
+            border: 2px solid red !important;
+        }
+    </style>
+
+    {% block extrastyle %}{% endblock extrastyle %}
+    <title>
+        {% block title %}{% endblock title %}
+    </title>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+
+    {% if not config.debug %}
+    <script type="text/javascript">
+      // Below code is java script
+      // this is google analytics code
+
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-70115178-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+    {% endif %}
+</head>
+<body id="page-top" class="h-100">
+    <script type="text/javascript">
+        {% block java_script %}{% endblock %}
+    </script>
+
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand js-scroll-trigger" href="/">
+               <img src="{{ url_for('static', filename='myht.ico') }}" width="30" height="30" class="d-inline-block align-top" alt="">
+                m.y.h.t
+            </a>
+            <button class="navbar-toggler navbar-toggler-right bg-light" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            Menu
+            <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+              {% if not current_user.is_authenticated %}
+                  <li class="nav-item">
+                    <a class="nav-link js-scroll-trigger" href="/login">Login</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link js-scroll-trigger" href="#features">Features</a>
+                  </li>
+              {% else %}
+                  <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ current_user.id }}</a>
+                      <div class="dropdown-menu" aria-labelledby="menu">
+                         <a class="dropdown-item" href="{{ url_for('tags.add_tags') }}" title="create new tags">Tags: Add</a>
+                         <a class="dropdown-item" href="{{ url_for('tags.manage_tags') }}" title="view/edit/delete tags">Tags: View/Edit/Delete</a>
+                         <a class="dropdown-item" href="{{ url_for('tags.generate_tags') }}" title="generate tags to use">Tags: Generate</a>
+                         <div class="dropdown-divider"></div>
+                         <a class="dropdown-item" href="/logout">Logout</a>
+                      </div>
+                  </li>
+              {% endif %}
+            </ul>
+      </div>
+    </div>
+    </nav>
+    </header>
+
+    <main role="main">
+        {%- if alert and alert['disabled'] == 'False' -%}
+        <div class="alerts row" style="padding-top: 65px;">
+            <div class="alert alert-{{ alert['type'] }}" role="alert">
+                {{ alert['text']|safe }}
+            </div>
+        </div>
+        {%- endif -%}
+
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            <ul class="flash" style="display: none;">
+                {% for category, message in messages %}
+                    <li class="flashed-msg">{{ category}}:{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
+
+        <div class="d-fluid fluid-column">
+            {% block body %}{% endblock %}
+        </div>
+
+        {% block js %}{% endblock js %}
+    </main>
+
+    <footer class="d-flex justify-content-center mt-auto">
+        <div class="container">
+          <p>Made With <i class="fas fa-heart"></i> From Mumbai & Amsterdam</p>
+          <ul class="list-inline">
+            <li class="list-inline-item">
+              <a href="/faq/privacy">Privacy</a>
+            </li>
+            <li class="list-inline-item">
+              <a href="/faq/terms">Terms</a>
+            </li>
+            <li class="list-inline-item">
+              <a href="/faq/about">About</a>
+            </li>
+          </ul>
+        </div>
+    </footer>
+    <!-- Bootstrap core JavaScript -->
+    <script src="{{ url_for('static', filename='js/jquery/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="{{ url_for('static', filename='js/jquery-easing/jquery.easing.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/notify/notify.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/clipboard.min.js') }}"></script>
+
+    <script>
+        $(document).ready(function () {
+            function csrfSafeMethod(method) {
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            function getCsrfToken() {
+                var cookieVal = null;
+
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var c = jQuery.trim(cookies[i]);
+                        if (c.startsWith('_csrf_token')) {
+                            cookieVal = decodeURIComponent(c.split('=')[1]);
+                            break;
+                        }
+                    }
+                }
+                return cookieVal;
+            }
+
+            var csrfToken = getCsrfToken();
+
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+                    }
+                }
+            });
+
+            $(".flashed-msg").each(function() {
+                var fields = $(this).text().split(':', 2);
+                $.notify(fields[1], fields[0]);
+            });
+            {% block jquery %}{% endblock %}
+        });
+    </script>
+</body>
+</html>

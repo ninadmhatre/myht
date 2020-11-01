@@ -1,0 +1,81 @@
+{% extends 'theme.html' %}
+{% import 'macro/display_helper.html' as helper %}
+
+{% block title %}Manage Tags{% endblock %}
+
+{% block body %}
+    <div class="container page-adjust">
+        <div class="row">
+            <div class="card w-100">
+                <div class="card-header bg-primary">
+                    <div class="d-flex">
+                        <div class="mr-auto p-2">Manage Tags</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if not tags %}
+                        <div class="alert alert-danger" role="alert">
+                            <span>There are no tags created for user, please add some tags first!!</span>
+                        </div>
+                        <div class="container row">
+                            <a class="btn btn-primary" href="{{ url_for('tags.add_tags') }}">Add New Tags</a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-primary" role="alert">
+                            <ol>
+                                <li>select checkbox next to category or tag to delete it</li>
+                                <li>you can only edit tags for category, to rename category please create new!</li>
+                                <li>Alert: delete all categories to delete all data related to you!!</li>
+                            </ol>
+                        </div>
+                        <div class="d-flex">
+                            <form class="w-100" action="" method="post" enctype="multipart/form-data">
+                                {{ helper.addCSRFToken() }}
+                                <table class="table table-bordered table-hover">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <td>Category</td>
+                                            <td>Tags</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {%- for category in tags -%}
+                                            {% set b64_category = category|obscure %}
+                                            <tr>
+                                                <td>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="checkbox" name="cat_del_{{ b64_category }}" id="cat_del_{{ b64_category }}" title="delete '{{ category }}' category and associated tags">
+                                                        <label class="form-check-label" for="cat_del_{{ b64_category }}">{{ category }}</label>
+                                                    </div>
+                                                <td>
+                                                    {%- for t in tags[category] -%}
+                                                    {% set b64_t = t|obscure %}
+                                                    <div class="row">
+                                                        <div class="col-10">
+                                                            <input class="form-control" name="tag_upd_{{ b64_category }}:{{ b64_t }}" style="padding-right: 5px;" value="{{ t }}" title="edit the value" required/>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <input class="form-control col-sm-2" id="rm-field" type="checkbox" name="tag_del_{{ b64_category }}:{{ b64_t }}" title="select tag to be deleted"/>
+<!--                                                        <div class="mark-deleted"></div>-->
+                                                        </div>
+                                                    </div>
+                                                    {%- endfor -%}
+                                                    <div class="row">  <!-- row to add new tags -->
+                                                        <div class="col-10">
+                                                            <input class="form-control" name="tag_add_{{ b64_category }}" style="padding-right: 5px;" placeholder="specify tags to add here e.g. tag1,tag2,tag3"/>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {%- endfor -%}
+                                    </tbody>
+                                </table>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
