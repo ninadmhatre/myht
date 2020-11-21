@@ -1,4 +1,4 @@
-__author__ = 'ninad'
+__author__ = "ninad"
 
 import jinja2
 import hashlib
@@ -14,7 +14,7 @@ def snippet(text, length=200):
     return t_snippet
 
 
-def hash_me(text, prefix='ninad-echo'):
+def hash_me(text, prefix="ninad-echo"):
     t = prefix + text
     md5 = hashlib.md5()
     md5.update(t.encode())
@@ -24,7 +24,7 @@ def hash_me(text, prefix='ninad-echo'):
 def toBoolean(text):
     if isinstance(text, int):
         return text == 1
-    return text.lower() in ('on', 'yes', 'true')
+    return text.lower() in ("on", "yes", "true")
 
 
 def toAscii(text):
@@ -35,11 +35,11 @@ def obscure(text):
     return encode(to_byte(text))
 
 
-jinja2.filters.FILTERS['snippet'] = snippet
-jinja2.filters.FILTERS['page_id'] = hash_me
-jinja2.filters.FILTERS['toBoolean'] = toBoolean
-jinja2.filters.FILTERS['toAscii'] = toAscii
-jinja2.filters.FILTERS['obscure'] = obscure
+jinja2.filters.FILTERS["snippet"] = snippet
+jinja2.filters.FILTERS["page_id"] = hash_me
+jinja2.filters.FILTERS["toBoolean"] = toBoolean
+jinja2.filters.FILTERS["toAscii"] = toAscii
+jinja2.filters.FILTERS["obscure"] = obscure
 
 # env = Environment()
 # env.filters['snippet'] = snippet

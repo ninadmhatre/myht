@@ -1,4 +1,4 @@
-__author__ = 'ninad'
+__author__ = "ninad"
 
 from typing import Union
 import os
@@ -15,6 +15,7 @@ class User(UserMixin):
     """
     User Mixin; with get name being changed!
     """
+
     def __init__(self, user_id):
         self.id = user_id
 
@@ -23,11 +24,11 @@ class User(UserMixin):
 
 
 def to_byte(s: str) -> bytes:
-    return s.encode('utf-8')
+    return s.encode("utf-8")
 
 
 def to_str(b: bytes) -> str:
-    return b.decode('utf-8')
+    return b.decode("utf-8")
 
 
 def obscure(data: Union[str, bytes]) -> str:
@@ -37,8 +38,8 @@ def obscure(data: Union[str, bytes]) -> str:
 
 
 def unobscure(obscured: bytes) -> str:
-    if obscured in ('', None):
-        return ''
+    if obscured in ("", None):
+        return ""
     return to_str(zlib.decompress(b64d(obscured)))
 
 
@@ -48,7 +49,7 @@ class Utility(object):
         if safe:
             return Utility.safe_write_to_file(filename, content, as_json)
 
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             if as_json:
                 f.write(json.dumps(content, indent=4))
             else:
@@ -60,20 +61,20 @@ class Utility(object):
             return Utility.safe_read_from_file(filename, as_json)
 
         if os.path.isfile(filename):
-            with open(filename, 'r') as f:
+            with open(filename, "r") as f:
                 content = f.read()  # Read full file
                 if as_json:
-                    data = json.loads(content, encoding='utf-8')
+                    data = json.loads(content, encoding="utf-8")
                     return data, None
                 return content, None
 
     @staticmethod
     def safe_read_from_file(filename, as_json=False):
         try:
-            with open(filename, 'r+') as f:
+            with open(filename, "r+") as f:
                 content = f.read()  # Read full file
                 if as_json:
-                    data = json.loads(content, encoding='utf-8')
+                    data = json.loads(content, encoding="utf-8")
                     return data, None
                 return content, None
         except IOError as e:
@@ -84,7 +85,7 @@ class Utility(object):
     @staticmethod
     def safe_write_to_file(filename, content, as_json=False):
         try:
-            with open(filename, 'w+') as f:
+            with open(filename, "w+") as f:
                 if as_json:
                     f.write(json.dumps(content, indent=4))
                 else:
@@ -98,24 +99,24 @@ class Utility(object):
 
     @staticmethod
     def get_ip(request):
-        if 'HTTP_X_REAL_IP' in request.environ:
-            return request.environ['HTTP_X_REAL_IP']
-        elif 'HTTP_X_FORWARDED_FOR' in request.environ:
-            ips = request.environ['HTTP_X_FORWARDED_FOR']
-            return ips.split(',')[0]
+        if "HTTP_X_REAL_IP" in request.environ:
+            return request.environ["HTTP_X_REAL_IP"]
+        elif "HTTP_X_FORWARDED_FOR" in request.environ:
+            ips = request.environ["HTTP_X_FORWARDED_FOR"]
+            return ips.split(",")[0]
         else:
             return request.remote_addr
 
     @staticmethod
     def get_md5_hash(string):
         if string and isinstance(string, str):
-            return hashlib.md5(string.encode('utf-8')).hexdigest()
+            return hashlib.md5(string.encode("utf-8")).hexdigest()
 
     @staticmethod
     def get_md5_hash_of_title(string):
         if string:
             _title = parse.quote(string)
-            return hashlib.md5(_title.encode('utf-8')).hexdigest()
+            return hashlib.md5(_title.encode("utf-8")).hexdigest()
         return None
 
     @staticmethod
@@ -126,11 +127,11 @@ class Utility(object):
     @staticmethod
     def unquote_string(string):
         if string:
-            return parse.unquote(string, encoding='utf-8')
+            return parse.unquote(string, encoding="utf-8")
 
     @staticmethod
     def base64encode(val: str) -> str:
-        return b64encode(to_byte(val)).decode('utf-8')
+        return b64encode(to_byte(val)).decode("utf-8")
 
     @staticmethod
     def decode_dict(vals: dict) -> dict:

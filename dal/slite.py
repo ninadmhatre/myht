@@ -19,15 +19,13 @@ class DbConn(ContextDecorator):
 class SQLiteDAL(DB):
     def __init__(self, tbl_name="main.hashes"):
         super().__init__()
-        self.db_file = r'/home/ninadmhatre/Documents/Projects/Python/hashed/db.sqlite' # FIXME: get from config
+        self.db_file = r"/home/ninadmhatre/Documents/Projects/Python/hashed/db.sqlite"  # FIXME: get from config
         self.db_tbl = tbl_name or "main.hashes"
         self.init_connection()
 
     def init_connection(self):
         try:
-            self.conn = sqlite3.connect(
-                self.db_file,
-                check_same_thread=False)
+            self.conn = sqlite3.connect(self.db_file, check_same_thread=False)
             self.conn.isolation_level = None
             self.conn.set_trace_callback(print)
         except sqlite3.Error as e:
@@ -42,7 +40,9 @@ class SQLiteDAL(DB):
 
         cur = self.conn.cursor()
         try:
-            query = "insert into {}(user, category, tags) values(?, ?, ?)".format(self.db_tbl)
+            query = "insert into {}(user, category, tags) values(?, ?, ?)".format(
+                self.db_tbl
+            )
             cur.executemany(query, rows)
         except Exception:
             self.conn.rollback()
@@ -61,7 +61,9 @@ class SQLiteDAL(DB):
             queries.append((query, params))
 
         for cat in updated_vals:
-            query = "update {} set tags = ? where user = ? and category = ?".format(self.db_tbl)
+            query = "update {} set tags = ? where user = ? and category = ?".format(
+                self.db_tbl
+            )
             params = (",".join(updated_vals[cat]), user, cat)
             queries.append((query, params))
 
@@ -71,7 +73,7 @@ class SQLiteDAL(DB):
         try:
             for query, params in queries:
                 cur.execute(query, params)
-                print(f'')
+                print(f"")
         except sqlite3.Error:
             self.conn.rollback()
             raise
@@ -123,7 +125,9 @@ class SQLiteDAL(DB):
         for c in categories:
             rows.append([user, c])
 
-        query = "delete from main.{} where user = ? and category = ?".format(self.db_tbl)
+        query = "delete from main.{} where user = ? and category = ?".format(
+            self.db_tbl
+        )
 
         try:
             cur.executemany(query, rows)
@@ -136,11 +140,13 @@ class SQLiteDAL(DB):
         rows = []
 
         for t in tags:
-            rows.append(
-                [user, category, t]
-            )
+            rows.append([user, category, t])
 
-        query = "delete from main.{} where user = ? and category = ? and tag = ?".format(self.db_tbl)
+        query = (
+            "delete from main.{} where user = ? and category = ? and tag = ?".format(
+                self.db_tbl
+            )
+        )
 
         try:
             cur.executemany(query, rows)

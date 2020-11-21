@@ -5,15 +5,15 @@ from dal import get_dal
 from libs.Utils import obscure
 from libs.validate import ManageForm
 
-TEST_DB_TABLE = 'test_hashes'
+TEST_DB_TABLE = "test_hashes"
 
 _dal = get_dal(tbl_name=TEST_DB_TABLE)
 
 
 DATA = {
-    'numbers': ['1', '2', '3'],
-    'objects': ['tree', 'sun', 'mountains'],
-    'sports': ['tennis', 'cricket', 'football', 'golf']
+    "numbers": ["1", "2", "3"],
+    "objects": ["tree", "sun", "mountains"],
+    "sports": ["tennis", "cricket", "football", "golf"],
 }
 
 # 1. 1 blank category received
@@ -26,14 +26,14 @@ DATA = {
 class ManageFormTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.user = 'dummy@myht.com'
+        cls.user = "dummy@myht.com"
         cls._populate_form_data()
 
         _dal.insert(cls.user, DATA)
 
     @classmethod
     def tearDownClass(cls):
-        print(f'deleting {cls.user} entries from db')
+        print(f"deleting {cls.user} entries from db")
         _dal.delete(cls.user)
 
     def setUp(self):
@@ -44,31 +44,27 @@ class ManageFormTests(unittest.TestCase):
         cls.dummy_data_as_received = {}
 
         for idx, c in enumerate(DATA):
-            cls.dummy_data_as_received[f'cat_{idx}'] = c
-            cls.dummy_data_as_received[f'tag_{idx}'] = ','.join(DATA[c])
+            cls.dummy_data_as_received[f"cat_{idx}"] = c
+            cls.dummy_data_as_received[f"tag_{idx}"] = ",".join(DATA[c])
 
     def test_blank_category(self):
-        data = {
-            'cat_del_': "on"
-        }
+        data = {"cat_del_": "on"}
 
-        form = ManageForm(data)
+        form = ManageForm(data, self.user_tags)
         form.parse()
-        form.validate(self.user_tags)
+        form.validate()
 
         self.assertTrue(form.has_errors())
         self.assertTrue(len(form.errors) == 1)
-        
-        self.assertIn('be deleted is blank!', form.errors.pop())
+
+        self.assertIn("be deleted is blank!", form.errors.pop())
 
     def test_blank_tag(self):
-        data = {
-            f'tag_add_{obscure(b"numbers")}': "3 , , 4,#,!,&*&*"
-        }
+        data = {f'tag_add_{obscure(b"numbers")}': "3 , , 4,#,!,&*&*"}
 
-        form = ManageForm(data)
+        form = ManageForm(data, self.user_tags)
         form.parse()
-        form.validate(self.user_tags)
+        form.validate()
 
         self.assertTrue(form.has_errors())
         self.assertTrue(len(form.errors), 4)
@@ -81,23 +77,23 @@ class ManageFormTests(unittest.TestCase):
             f'tag_upd_{obscure(b"numbers")}:{obscure(b"4")}': "1" * 51,
         }
 
-        form = ManageForm(data)
+        form = ManageForm(data, self.user_tags)
         form.parse()
-        form.validate(self.user_tags)
+        form.validate()
 
         self.assertTrue(form.has_errors())
-        print(f'{form.errors=}')
+        print(f"{form.errors=}")
         self.assertTrue(len(form.errors) == 3)
 
     def test_deleted_tag_is_re_added(self):
         data = {
-            f'tag_del_{obscure(b"numbers")}:{obscure(b"abcd")}': 'on',
-            f'tag_add_{obscure(b"numbers")}': "xyz, llll, abcd"
+            f'tag_del_{obscure(b"numbers")}:{obscure(b"abcd")}': "on",
+            f'tag_add_{obscure(b"numbers")}': "xyz, llll, abcd",
         }
 
-        form = ManageForm(data)
+        form = ManageForm(data, self.user_tags)
         form.parse()
-        form.validate(self.user_tags)
+        form.validate()
 
         _, new_vals = form.get_result
 
@@ -110,9 +106,9 @@ class ManageFormTests(unittest.TestCase):
             f'tag_del_{obscure(b"objects")}:{obscure(b"mountain")}': True,
         }
 
-        form = ManageForm(data)
+        form = ManageForm(data, self.user_tags)
         form.parse()
-        form.validate(self.user_tags)
+        form.validate()
 
         deleted_categories, _ = form.get_result
 

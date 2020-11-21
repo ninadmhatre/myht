@@ -11,4 +11,3 @@ def get_dal(tbl_name=None) -> base.DB:
         __DAL = slite.SQLiteDAL(tbl_name)
 
     return __DAL
-

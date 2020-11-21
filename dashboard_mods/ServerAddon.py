@@ -1,5 +1,4 @@
-
-__author__ = 'Ninad Mhatre'
+__author__ = "Ninad Mhatre"
 
 from addonpy.IAddonInfo import IAddonInfo
 from jinja2 import Template
@@ -13,8 +12,11 @@ class ServerAddon(IAddonInfo, AddonReturnType):
     status = True
 
     def _get_cpu_stats(self):
-        cpu_info = {'processors': ps.cpu_count(), 'times': ps.cpu_times(),
-                    'load': ps.cpu_percent(percpu=True)}
+        cpu_info = {
+            "processors": ps.cpu_count(),
+            "times": ps.cpu_times(),
+            "load": ps.cpu_percent(percpu=True),
+        }
         return cpu_info
 
     def _get_process_stats(self, process):
@@ -22,11 +24,13 @@ class ServerAddon(IAddonInfo, AddonReturnType):
         for p in process:
             p_info[p.pid] = {}
             _p = p_info[p.pid]
-            _p['exe'] = p.exe()
-            _p['user'] = p.username()
-            _p['created_at'] = datetime.fromtimestamp(p.create_time()).strftime('%Y-%m-%d %H:%M:%S')
-            _p['cpu_usage'] = '{0:3.3f}'.format(p.cpu_percent())
-            _p['memory_usage'] = '{0:3.3f}'.format(p.memory_percent())
+            _p["exe"] = p.exe()
+            _p["user"] = p.username()
+            _p["created_at"] = datetime.fromtimestamp(p.create_time()).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+            _p["cpu_usage"] = "{0:3.3f}".format(p.cpu_percent())
+            _p["memory_usage"] = "{0:3.3f}".format(p.memory_percent())
 
         return p_info
 
@@ -39,37 +43,38 @@ class ServerAddon(IAddonInfo, AddonReturnType):
         return match
 
     def _get_memory_stats(self):
-        mem_info = {'virtual': {}, 'swap': {}}
+        mem_info = {"virtual": {}, "swap": {}}
         v_mem = ps.virtual_memory()
         s_mem = ps.swap_memory()
-    
-        _c = mem_info['virtual']
-        _c['total'] = v_mem.total
-        _c['used'] = v_mem.used
-        _c['free'] = v_mem.free
-        _c['used_percent'] = v_mem.percent
 
-        _c = mem_info['swap']
-        _c['total'] = s_mem.total
-        _c['used'] = s_mem.used
-        _c['free'] = s_mem.free
-        _c['used_percent'] = s_mem.percent
+        _c = mem_info["virtual"]
+        _c["total"] = v_mem.total
+        _c["used"] = v_mem.used
+        _c["free"] = v_mem.free
+        _c["used_percent"] = v_mem.percent
+
+        _c = mem_info["swap"]
+        _c["total"] = s_mem.total
+        _c["used"] = s_mem.used
+        _c["free"] = s_mem.free
+        _c["used_percent"] = s_mem.percent
 
         return mem_info
 
     def _get_disk_stats(self):
-        return ps.disk_usage('/')
+        return ps.disk_usage("/")
 
     def execute(self, *args, **kwargs):
         from collections import OrderedDict
+
         self.result = OrderedDict()
-        self.result['cpu'] = self._get_cpu_stats()
-        self.result['memory'] = self._get_memory_stats()
-        self.result['disk'] = self._get_disk_stats()
-        self.result['process'] = self._get_process_stats(self._search('python'))
+        self.result["cpu"] = self._get_cpu_stats()
+        self.result["memory"] = self._get_memory_stats()
+        self.result["disk"] = self._get_disk_stats()
+        self.result["process"] = self._get_process_stats(self._search("python"))
 
     def template(self):
-        html = '''<div class="col-lg-12"><div class="panel panel-success">
+        html = """<div class="col-lg-12"><div class="panel panel-success">
             <div class="panel-heading">
                 <h3 class="panel-title">
                     {{- name -}}
@@ -169,7 +174,7 @@ class ServerAddon(IAddonInfo, AddonReturnType):
                 </div>
                 <div class="panel-footer" style="font-size: 80%;">Know more about this module <a href="{{ help_url }}" target="_blank">here</a></div>
             </div>
-        </div></div>'''
+        </div></div>"""
 
         t = Template(html)
 
@@ -182,8 +187,8 @@ class ServerAddon(IAddonInfo, AddonReturnType):
 
     @property
     def name(self):
-        return self.__addon__().replace('Addon', ' Info')
+        return self.__addon__().replace("Addon", " Info")
 
     @staticmethod
     def __addon__():
-        return 'ServerAddon'
+        return "ServerAddon"

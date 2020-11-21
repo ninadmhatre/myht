@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__author__ = 'ninad'
+__author__ = "ninad"
 
 from rauth import OAuth1Service, OAuth2Service
 from flask import current_app, url_for, request, redirect
@@ -29,14 +29,14 @@ class OAuthSignIn(object):
 
     def __init__(self, provider_name):
         self.provider_name = provider_name
-        conf = current_app.config['OAUTH'][provider_name.upper()]
-        urls = conf['urls']
+        conf = current_app.config["OAUTH"][provider_name.upper()]
+        urls = conf["urls"]
 
-        self.consumer_id = conf['id']
-        self.consumer_secret = conf['secret']
-        self.authorize_url = urls['authorize']
-        self.base_url = urls['base']
-        self.access_token_url = urls['token']
+        self.consumer_id = conf["id"]
+        self.consumer_secret = conf["secret"]
+        self.authorize_url = urls["authorize"]
+        self.base_url = urls["base"]
+        self.access_token_url = urls["token"]
 
     def authorize(self):
         pass
@@ -45,8 +45,9 @@ class OAuthSignIn(object):
         pass
 
     def get_callback_url(self):
-        return url_for('auth.oauth_callback', provider=self.provider_name,
-                       _external=True)
+        return url_for(
+            "auth.oauth_callback", provider=self.provider_name, _external=True
+        )
 
     @classmethod
     def get_provider(cls, provider_name):
@@ -60,34 +61,38 @@ class OAuthSignIn(object):
 
 class FacebookSignIn(OAuthSignIn):
     def __init__(self):
-        super().__init__('facebook')
+        super().__init__("facebook")
 
         self.service = OAuth2Service(
-            name='facebook',
+            name="facebook",
             client_id=self.consumer_id,
             client_secret=self.consumer_secret,
             authorize_url=self.authorize_url,
             access_token_url=self.access_token_url,
-            base_url=self.base_url
+            base_url=self.base_url,
         )
 
     def authorize(self):
-        return redirect(self.service.get_authorize_url(
-            scope='email',
-            response_type='code',
-            redirect_uri=self.get_callback_url())
+        return redirect(
+            self.service.get_authorize_url(
+                scope="email",
+                response_type="code",
+                redirect_uri=self.get_callback_url(),
+            )
         )
 
     def callback(self):
-        if 'code' not in request.args:
+        if "code" not in request.args:
             return None, None, None
         oauth_session = self.service.get_auth_session(
-            data={'code': request.args['code'],
-                  'grant_type': 'authorization_code',
-                  'redirect_uri': self.get_callback_url()},
-            decoder=json.loads
+            data={
+                "code": request.args["code"],
+                "grant_type": "authorization_code",
+                "redirect_uri": self.get_callback_url(),
+            },
+            decoder=json.loads,
         )
-        me = oauth_session.get('me?fields=id,email,first_name,last_name').json()
+        me = oauth_session.get("me?fields=id,email,first_name,last_name").json()
 
         """
         {   'email': 'n.mhatre@hotmail.com',
@@ -98,42 +103,46 @@ class FacebookSignIn(OAuthSignIn):
         # import pprint
         # pprint.pprint(me, indent=4)
         return (
-            'facebook$' + me['id'],
-            (me['first_name'], me['last_name']),
-            me['email'],
-            me
+            "facebook$" + me["id"],
+            (me["first_name"], me["last_name"]),
+            me["email"],
+            me,
         )
 
 
 class GithubSignIn(OAuthSignIn):
     def __init__(self):
-        super().__init__('github')
+        super().__init__("github")
         self.service = OAuth2Service(
-            name='github',
+            name="github",
             client_id=self.consumer_id,
             client_secret=self.consumer_secret,
             authorize_url=self.authorize_url,
             access_token_url=self.access_token_url,
-            base_url=self.base_url
+            base_url=self.base_url,
         )
 
     def authorize(self):
-        return redirect(self.service.get_authorize_url(
-            scope='user:email',
-            response_type='code',
-            redirect_uri=self.get_callback_url())
+        return redirect(
+            self.service.get_authorize_url(
+                scope="user:email",
+                response_type="code",
+                redirect_uri=self.get_callback_url(),
+            )
         )
 
     def callback(self):
-        if 'code' not in request.args:
+        if "code" not in request.args:
             return None, None, None
         oauth_session = self.service.get_auth_session(
-            data={'code': request.args['code'],
-                  'grant_type': 'authorization_code',
-                  'redirect_uri': self.get_callback_url()},
-            decoder=json.loads
+            data={
+                "code": request.args["code"],
+                "grant_type": "authorization_code",
+                "redirect_uri": self.get_callback_url(),
+            },
+            decoder=json.loads,
         )
-        me = oauth_session.get('user').json()
+        me = oauth_session.get("user").json()
         # import pprint
         # pprint.pprint(me, indent=4)
 
@@ -170,43 +179,42 @@ class GithubSignIn(OAuthSignIn):
         'url': 'https://api.github.com/users/ninadmhatre'}
 
         """
-        return (
-            'github$%d' % me['id'],
-            me['name'].split(' '),
-            me['email'],
-            me
-        )
+        return ("github$%d" % me["id"], me["name"].split(" "), me["email"], me)
 
 
 class AzureSignIn(OAuthSignIn):
     def __init__(self):
-        super().__init__('azure')
+        super().__init__("azure")
         self.service = OAuth2Service(
-            name='azure',
+            name="azure",
             client_id=self.consumer_id,
             client_secret=self.consumer_secret,
             authorize_url=self.authorize_url,
             access_token_url=self.access_token_url,
-            base_url=self.base_url
+            base_url=self.base_url,
         )
 
     def authorize(self):
-        return redirect(self.service.get_authorize_url(
-            scope='User.Read',
-            response_type='code',
-            redirect_uri=self.get_callback_url())
+        return redirect(
+            self.service.get_authorize_url(
+                scope="User.Read",
+                response_type="code",
+                redirect_uri=self.get_callback_url(),
+            )
         )
 
     def callback(self):
-        if 'code' not in request.args:
+        if "code" not in request.args:
             return None, None, None
         oauth_session = self.service.get_auth_session(
-            data={'code': request.args['code'],
-                  'grant_type': 'authorization_code',
-                  'redirect_uri': self.get_callback_url()},
-            decoder=json.loads
+            data={
+                "code": request.args["code"],
+                "grant_type": "authorization_code",
+                "redirect_uri": self.get_callback_url(),
+            },
+            decoder=json.loads,
         )
-        me = oauth_session.get('v1.0/me').json()
+        me = oauth_session.get("v1.0/me").json()
         # import pprint
         # pprint.pprint(me, indent=4)
 
@@ -225,43 +233,47 @@ class AzureSignIn(OAuthSignIn):
             'userPrincipalName': 'ninad.mhatre@outlook.com'}
         """
         return (
-            'azure$%s' % me['id'],
-            (me['givenName'], me['surname']),
-            me['userPrincipalName'],
-            me
+            "azure$%s" % me["id"],
+            (me["givenName"], me["surname"]),
+            me["userPrincipalName"],
+            me,
         )
 
 
 class GoogleSignIn(OAuthSignIn):
     def __init__(self):
-        super().__init__('google')
+        super().__init__("google")
         self.service = OAuth2Service(
-            name='google',
+            name="google",
             client_id=self.consumer_id,
             client_secret=self.consumer_secret,
             authorize_url=self.authorize_url,
             access_token_url=self.access_token_url,
-            base_url=self.base_url
+            base_url=self.base_url,
         )
 
     def authorize(self):
-        return redirect(self.service.get_authorize_url(
-            scope='profile email',
-            response_type='code',
-            redirect_uri=self.get_callback_url())
+        return redirect(
+            self.service.get_authorize_url(
+                scope="profile email",
+                response_type="code",
+                redirect_uri=self.get_callback_url(),
+            )
         )
 
     def callback(self):
-        if 'code' not in request.args:
+        if "code" not in request.args:
             return None, None, None
         oauth_session = self.service.get_auth_session(
-            data={'code': request.args['code'],
-                  'grant_type': 'authorization_code',
-                  'redirect_uri': self.get_callback_url()},
-            decoder=json.loads
+            data={
+                "code": request.args["code"],
+                "grant_type": "authorization_code",
+                "redirect_uri": self.get_callback_url(),
+            },
+            decoder=json.loads,
         )
         # me = oauth_session.get('v1/userinfo').json()
-        me = oauth_session.get('plus/v1/people/me').json()
+        me = oauth_session.get("plus/v1/people/me").json()
 
         # import pprint
         # pprint.pprint(me, indent=4)
@@ -305,45 +317,51 @@ class GoogleSignIn(OAuthSignIn):
         'verified': False}
         """
         return (
-            'google$%s' % me['id'],
-            (me['name']['givenName'], me['name']['familyName']),
-            me['emails'][0]['value'],
-            me
+            "google$%s" % me["id"],
+            (me["name"]["givenName"], me["name"]["familyName"]),
+            me["emails"][0]["value"],
+            me,
         )
 
 
 class LinkedinSignIn(OAuthSignIn):
     def __init__(self):
-        super().__init__('linkedin')
+        super().__init__("linkedin")
         self.service = OAuth2Service(
-            name='linkedin',
+            name="linkedin",
             client_id=self.consumer_id,
             client_secret=self.consumer_secret,
             authorize_url=self.authorize_url,
             access_token_url=self.access_token_url,
-            base_url=self.base_url
+            base_url=self.base_url,
         )
 
     def authorize(self):
-        return redirect(self.service.get_authorize_url(
-            # scope='r_emailaddress',
-            response_type='code',
-            redirect_uri=self.get_callback_url())
+        return redirect(
+            self.service.get_authorize_url(
+                # scope='r_emailaddress',
+                response_type="code",
+                redirect_uri=self.get_callback_url(),
+            )
         )
 
     @silence_exception
     def callback(self):
-        if 'code' not in request.args:
+        if "code" not in request.args:
             return None, None, None
 
         oauth_session = self.service.get_auth_session(
-            data={'code': request.args['code'],
-                  'grant_type': 'authorization_code',
-                  'redirect_uri': self.get_callback_url()},
-            decoder=json.loads
+            data={
+                "code": request.args["code"],
+                "grant_type": "authorization_code",
+                "redirect_uri": self.get_callback_url(),
+            },
+            decoder=json.loads,
         )
         # pdb.set_trace()
-        me = oauth_session.get('v1/people/~:(id,first-name,last-name,maiden-name,email-address)?format=json').json()
+        me = oauth_session.get(
+            "v1/people/~:(id,first-name,last-name,maiden-name,email-address)?format=json"
+        ).json()
         # import pprint
         # pprint.pprint(me, indent=4)
 
@@ -354,8 +372,8 @@ class LinkedinSignIn(OAuthSignIn):
         'lastName': 'Mhatre',
         """
         return (
-            'linkedin$%s' % me['id'],
-            (me['firstName'], me['lastName']),
-            me['emailAddress'],
-            me
+            "linkedin$%s" % me["id"],
+            (me["firstName"], me["lastName"]),
+            me["emailAddress"],
+            me,
         )

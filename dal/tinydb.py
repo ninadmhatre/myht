@@ -8,20 +8,17 @@ class TinyDBDAL(DB):
 
     def config(self):
         self._cfg = {
-            'db_file': 'db.json',
+            "db_file": "db.json",
         }
 
     def init_connection(self):
         if self.conn:
             return self.conn
 
-        self.conn = TinyDB(self._cfg['db_file'])
+        self.conn = TinyDB(self._cfg["db_file"])
 
     def insert(self, key: str, category: str, tags: list) -> bool:
         self.conn.insert
 
     def get(self, user: str):
         pass
-
-
-

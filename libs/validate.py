@@ -40,13 +40,16 @@ class Validator:
         for err in self.errors:
             logger.error(err)
 
-    def flash_errors(self, category='errors'):
+    def flash_errors(self, category="errors"):
         for err in self.errors:
             flash(err, category)
 
+    def get_errors(self, as_list=True):
+        return list(self.errors)
 
-TAG_RE = re.compile(r'\w+', re.UNICODE)
-NOT_ALLOWED_CHARS = ('!', '$', '%', '^', '&', '*', '+', '.', '#')
+
+TAG_RE = re.compile(r"\w+", re.UNICODE)
+NOT_ALLOWED_CHARS = ("!", "$", "%", "^", "&", "*", "+", ".", "#")
 
 
 @dataclass(frozen=True)
@@ -60,15 +63,18 @@ class Limits:
 def validate_tag(tag: str, cat: str) -> list:
     err = []
 
-    if ' ' in tag:
-        err.append(f'space found in {cat}.[{tag}]')
+    if " " in tag:
+        err.append(f"space found in {cat}.[{tag}]")
     elif len(tag) > Limits.MaxLenOfTag:
-        err.append(f'tag [{tag}] longer than 50 chars')
+        err.append(f"tag [{tag}] longer than 50 chars")
     else:
         result = TAG_RE.match(tag)
-        if result and len(result[0]) != len(tag):
+
+        if result is None:
+            err.append(f"tag [{tag}] has one of the invalid [{NOT_ALLOWED_CHARS}] chars")
+        elif len(result[0]) != len(tag):
             if any([char in tag for char in NOT_ALLOWED_CHARS]):
-                err.append(f'tag [{tag}] has invalid chars!')
+                err.append(f"tag [{tag}] has invalid chars!")
 
     return err
 
@@ -95,7 +101,9 @@ class AddForm(Validator):
             if cat == "" and user_tags == "":
                 continue
 
-            self.new_tags.append((cat.strip(), [t.strip() for t in user_tags.split(',')]))
+            self.new_tags.append(
+                (cat.strip(), [t.strip() for t in user_tags.split(",")])
+            )
 
     def validate(self, existing_tags: dict = None):
         # validate following,
@@ -115,10 +123,12 @@ class AddForm(Validator):
                 continue
 
             if self._has_valid_num_of_tags(tags):
-                self.errors.add(f'only 30 tags per category allowed, {cat} has {len(tags)} tags!')
+                self.errors.add(
+                    f"only 30 tags per category allowed, {cat} has {len(tags)} tags!"
+                )
                 has_errors = True
 
-            _tags = [t for t in tags if t != '']
+            _tags = [t for t in tags if t != ""]
 
             for tag in _tags:
                 err = validate_tag(tag, cat)
@@ -147,20 +157,20 @@ class ManageForm(Validator):
             if key == "_csrf_token":
                 continue
 
-            if key.startswith('cat_del'):
-                _k = key.replace('cat_del_', '')
+            if key.startswith("cat_del"):
+                _k = key.replace("cat_del_", "")
                 self.deleted_categories.append(unobscure(_k))
-            elif key.startswith('tag_add'):
+            elif key.startswith("tag_add"):
                 if self.is_blank(val):
                     continue
 
-                cat = key.replace('tag_add_', '')
+                cat = key.replace("tag_add_", "")
                 cat = unobscure(cat)
 
                 if cat in self.deleted_categories:
                     continue
 
-                new_tags = [t.strip() for t in val.split(',')]
+                new_tags = [t.strip() for t in val.split(",")]
                 for tag in new_tags:
                     err = validate_tag(tag, cat)
                     if err:
@@ -168,11 +178,11 @@ class ManageForm(Validator):
                     else:
                         self.new_vals[cat].extend(new_tags)
             else:
-                if key.startswith('tag_del'):
+                if key.startswith("tag_del"):
                     # breakpoint()
                     pass
-                cat_tag = key.split('_', 2)[2]
-                cat, tag = cat_tag.split(':', 1)
+                cat_tag = key.split("_", 2)[2]
+                cat, tag = cat_tag.split(":", 1)
 
                 cat = unobscure(cat)
                 tag = unobscure(tag)
@@ -180,7 +190,7 @@ class ManageForm(Validator):
                 if cat in self.deleted_categories:
                     continue
 
-                if 'del' in key:
+                if "del" in key:
                     self.deleted_vals[cat].append(tag)
                     continue
 
@@ -208,7 +218,9 @@ class ManageForm(Validator):
         #  - each tag length
 
         for cat, tags in self.deleted_vals.items():
-            if len(tags) == len(self.existing_tags[cat]):  # all tags marked to be deleted
+            if len(tags) == len(
+                self.existing_tags[cat]
+            ):  # all tags marked to be deleted
                 self.deleted_categories.append(cat)
 
         for val in self.deleted_categories:
@@ -221,9 +233,11 @@ class ManageForm(Validator):
                 continue
 
             if self._has_valid_num_of_tags(tags):
-                self.errors.add(f'only 30 tags per category allowed, {cat} has {len(tags)} tags!')
+                self.errors.add(
+                    f"only 30 tags per category allowed, {cat} has {len(tags)} tags!"
+                )
 
-            _tags = [t for t in set(tags) if t != '']
+            _tags = [t for t in set(tags) if t != ""]
 
             for tag in _tags:
                 self.errors.update(validate_tag(tag, cat))
@@ -259,11 +273,11 @@ class GenerateForm(Validator):
 
     def parse(self):
         for key, val in self.form.items():
-            if key.startswith('cat_sel'):
-                _k = key.replace('cat_sel_', '')
+            if key.startswith("cat_sel"):
+                _k = key.replace("cat_sel_", "")
                 self.selected.extend(self.existing[_k])
-            elif key.startswith('tag_sel'):
-                _, tag = key.replace('tag_sel', '').split(':')
+            elif key.startswith("tag_sel"):
+                _, tag = key.replace("tag_sel", "").split(":")
                 self.selected.append(tag)
 
     def validate(self, existing_tags: dict = None):
@@ -276,7 +290,7 @@ class GenerateForm(Validator):
         elif len(self.selected) > Limits.MaxGenTags:
             self.errors.add("This is suspicious, more than 300 tags were selected!!")
         else:
-            self.formatted = " ".join([f'#{t}' for t in self.selected])
+            self.formatted = " ".join([f"#{t}" for t in self.selected])
 
     @property
     def get_result(self):

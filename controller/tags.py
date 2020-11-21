@@ -1,6 +1,15 @@
 from functools import lru_cache as cache
 
-from flask import Blueprint, current_app, request, jsonify, render_template, flash, redirect, url_for
+from flask import (
+    Blueprint,
+    current_app,
+    request,
+    jsonify,
+    render_template,
+    flash,
+    redirect,
+    url_for,
+)
 from flask_login import login_required, current_user
 
 from dal import get_dal
@@ -10,7 +19,7 @@ from sqlite3 import IntegrityError
 from libs.Utils import unobscure
 from libs.validate import AddForm, ManageForm, GenerateForm
 
-tags = Blueprint('tags', __name__, url_prefix='/tags')
+tags = Blueprint("tags", __name__, url_prefix="/tags")
 
 # user = "ninad.mhatre@gmail.com"
 dal = get_dal()
@@ -33,9 +42,9 @@ def parse_tags(string: str) -> (dict, list):
         category, _tags = entry.split(":")
 
         if category in parsed:
-            errors.append('Duplicate category: {}'.format(category))
+            errors.append("Duplicate category: {}".format(category))
         else:
-            parsed[category] = [t.strip() for t in _tags.split(',')]
+            parsed[category] = [t.strip() for t in _tags.split(",")]
 
     return parsed, errors
 
@@ -56,16 +65,16 @@ def remove_existing(user_tags, user) -> dict:
     return result
 
 
-@tags.route('/add', methods=['GET', 'POST'])
+@tags.route("/add", methods=["GET", "POST"])
 @login_required
 def add_tags():
-    if request.method == 'POST':
+    if request.method == "POST":
         form = AddForm(request.form)
         form.parse()
         form.validate(dal.get_user_tags(current_user.id))
 
         if form.has_errors():
-            form.flash_errors(category='error')
+            form.flash_errors(category="error")
         else:
             tags_to_add = form.get_result
             dal.insert(current_user.id, tags_to_add)
@@ -73,10 +82,10 @@ def add_tags():
     result = dal.get_user_tags(current_user.id)
     additional = 10 - len(result)
 
-    return render_template('tags/add.html', existing=result, additional=additional)
+    return render_template("tags/add.html", existing=result, additional=additional)
 
 
-@tags.route('/manage', methods=['GET', 'POST'])
+@tags.route("/manage", methods=["GET", "POST"])
 @login_required
 def manage_tags():
     if request.method == "POST":
@@ -95,10 +104,10 @@ def manage_tags():
                 dal.update(current_user.id, deleted_categories, new_vals)
 
     result = dal.get_user_tags(current_user.id)
-    return render_template('tags/manage.html', tags=result)
+    return render_template("tags/manage.html", tags=result)
 
 
-@tags.route('/generate', methods=['GET', 'POST'])
+@tags.route("/generate", methods=["GET", "POST"])
 @login_required
 def generate_tags():
     if request.method == "POST":
@@ -110,9 +119,8 @@ def generate_tags():
 
         if form.has_errors():
             form.flash_errors()
-            return render_template('tags/generate.html', tags=existing_tags)
-        return render_template('tags/generate.html', generated=form.get_result)
+            return render_template("tags/generate.html", tags=existing_tags)
+        return render_template("tags/generate.html", generated=form.get_result)
     else:
         result = dal.get_user_tags(current_user.id)
-        return render_template('tags/generate.html', tags=result)
-
+        return render_template("tags/generate.html", tags=result)

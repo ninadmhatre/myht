@@ -31,10 +31,9 @@ class DB:
         result = defaultdict(list)
 
         for _, category, user_tags in data:
-            result[category] = user_tags.split(',')
+            result[category] = user_tags.split(",")
 
         return result
-
 
 
 # if __name__ == '__main__':
