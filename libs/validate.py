@@ -1,9 +1,13 @@
+import logging
 from dataclasses import dataclass
 from collections import defaultdict
 from flask import flash
 import re
 
-from libs.Utils import unobscure, obscure
+from libs.Utils import unobscure
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class Validator:
@@ -31,6 +35,10 @@ class Validator:
     @property
     def get_result(self):
         raise NotImplementedError
+
+    def log_errors(self):
+        for err in self.errors:
+            logger.error(err)
 
     def flash_errors(self, category='errors'):
         for err in self.errors:
@@ -73,16 +81,21 @@ class AddForm(Validator):
 
     def parse(self):
         for i in range(10):
-            cat_key = obscure(f"cat_{i}")
-            tag_key = obscure(f"tag_{i}")
+            # obscured_i = obscure(str(i))
+
+            cat_key = f"cat_{i}"
+            tag_key = f"tag_{i}"
+
+            if cat_key not in self.form:
+                continue
 
             cat = self.form.get(cat_key)
-            utags = self.form.get(tag_key)
+            user_tags = self.form.get(tag_key)
 
-            if cat is None or utags is None:
-                break
+            if cat == "" and user_tags == "":
+                continue
 
-            self.new_tags.append((cat.strip(), [t.strip() for t in utags.split(',')]))
+            self.new_tags.append((cat.strip(), [t.strip() for t in user_tags.split(',')]))
 
     def validate(self, existing_tags: dict = None):
         # validate following,
@@ -91,7 +104,7 @@ class AddForm(Validator):
         #  - max tag per count - 30
         #  - no spaces in each tag
 
-        for cat, tags in self.new_tags[len(existing_tags):]:
+        for cat, tags in self.new_tags:
             has_errors = False
 
             if self.is_blank(cat) or self.is_blank(tags):
@@ -122,8 +135,9 @@ class AddForm(Validator):
 
 
 class ManageForm(Validator):
-    def __init__(self, form):
+    def __init__(self, form, existing_vals: dict):
         super().__init__(form)
+        self.existing_tags = existing_vals
         self.deleted_categories = []
         self.new_vals = defaultdict(list)
         self.deleted_vals = defaultdict(list)
@@ -194,7 +208,7 @@ class ManageForm(Validator):
         #  - each tag length
 
         for cat, tags in self.deleted_vals.items():
-            if len(tags) == len(existing_tags[cat]):  # all tags marked to be deleted
+            if len(tags) == len(self.existing_tags[cat]):  # all tags marked to be deleted
                 self.deleted_categories.append(cat)
 
         for val in self.deleted_categories:
@@ -209,10 +223,26 @@ class ManageForm(Validator):
             if self._has_valid_num_of_tags(tags):
                 self.errors.add(f'only 30 tags per category allowed, {cat} has {len(tags)} tags!')
 
-            _tags = [t for t in tags if t != '']
+            _tags = [t for t in set(tags) if t != '']
 
             for tag in _tags:
                 self.errors.update(validate_tag(tag, cat))
+
+            self.new_vals[cat] = _tags
+
+    def is_updated(self) -> bool:
+        """ check if values were updated and db update is really required """
+        if self.deleted_categories:
+            return True
+
+        if sorted(self.existing_tags.keys()) != sorted(self.new_vals.keys()):
+            return True
+
+        for cat, val in self.new_vals.items():
+            if sorted(val) != sorted(self.existing_tags[cat]):
+                return True
+
+        return False
 
     @property
     def get_result(self):

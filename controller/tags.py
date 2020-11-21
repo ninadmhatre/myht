@@ -83,15 +83,16 @@ def manage_tags():
         # deleted_cat, new_vals, deleted_vals = [], defaultdict(list), defaultdict(list)
         existing_tags = dal.get_user_tags(current_user.id)
 
-        form = ManageForm(request.form)
+        form = ManageForm(request.form, existing_tags)
         form.parse()
-        form.validate(existing_tags)
+        form.validate()
 
-        if form.has_errors():
-            form.flash_errors()
-        else:
-            deleted_categories, new_vals = form.get_result
-            dal.update(current_user.id, deleted_categories, new_vals)
+        if form.is_updated():
+            if form.has_errors():
+                form.flash_errors()
+            else:
+                deleted_categories, new_vals = form.get_result
+                dal.update(current_user.id, deleted_categories, new_vals)
 
     result = dal.get_user_tags(current_user.id)
     return render_template('tags/manage.html', tags=result)
