@@ -1,4 +1,8 @@
-from collections import namedtuple
+import json
+from datetime import timedelta
+from functools import lru_cache as cache
+
+import requests
 from flask import (
     Blueprint,
     render_template,
@@ -10,202 +14,149 @@ from flask import (
     current_app,
     session,
 )
-from flask_login import login_user, logout_user, login_required, current_user, UserMixin
+from flask_login import login_user, logout_user, login_required, current_user, UserMixin, login_manager
+from oauthlib.oauth2 import WebApplicationClient
 
-# # OAuth providers
-# from web.model.oauth.base import OAuthSignIn
-#
-# shared = get_shared(current_app)
-#
-# dal = shared.get('dal')
-# m_cache = shared.get('mcache')
-# dbi = DBInterface(dal, cache=m_cache)
-#
-# authentication = Blueprint('auth', __name__)
-# _authenticated_user = shared.get('users')
-#
-UserInfo = namedtuple("UserInfo", ["name", "email", "id"])
+from dal.dbobj import get_dal
+from libs.dt import User
+from instance import get_oauth_details
 
+__OAUTH_INFO = get_oauth_details()
 
-class User(UserMixin):
-    """
-    User object after login
-    """
+auth = Blueprint("auth", __name__, url_prefix="/auth")
 
-    def __init__(self, email, info=None):
-        self.email = email
-        if not info:
-            info = {}
-        self.fname = info.get("fname")
-        self.lname = info.get("lname")
+client = WebApplicationClient(__OAUTH_INFO.cl_id)
 
-    def _set_info(self, info):
-        self.info = info.get("meta", {}) if info else {}
-
-    def is_active(self):
-        """True, as all users are active."""
-        return True
-
-    def get_id(self):
-        """Return the email address to satisfy Flask-Login's requirements."""
-        return self.email
-
-    def get_fname(self):
-        return self.fname
-
-    def get_lname(self):
-        return self.lname
-
-    def get_name(self, formatted=False):
-        """Return first and last name of user"""
-        if formatted:
-            return "{0} {1}".format(
-                self.get_fname().capitalize(), self.get_lname().capitalize()
-            )
-        return self.get_fname(), self.get_lname()
-
-    def get_email(self):
-        """Get Email of the user"""
-        return self.email
-
-    def is_authenticated(self):
-        """Return True if the user is authenticated."""
-        return True
-
-    def is_anonymous(self):
-        """False, as anonymous users aren't supported."""
-        return False
-
-    def __repr__(self):
-        return "%r" % self.get_id()
-
-    def __str__(self):
-        return "%s,%s,%s" % (self.email, self.get_fname(), self.get_lname())
+DAL = get_dal()
 
 
-@authentication.record
-def init(setup_state):
-    azure_client_id = "4cd8bc66-beb8-47a0-85a4-962044fcdceb"
-    azure_pass = "NyaK1D8nwi7pxnC8Rcb1ouj"
-
-    github_client_id = "aa148ba2f4486a716b24"
-    github_secret = "04cc12cdbd43c97f121f1835fd944b19ae2e4c36"
+@cache()
+def get_google_provider_cfg():
+    discovery_url = __OAUTH_INFO.discovery_url
+    return requests.get(discovery_url).json()
 
 
-@authentication.route("/login", methods=["GET", "POST"])
+@auth.route("/login")
 def login():
-    header = "User Login"
-    if request.method == "POST":
-        username = request.form.get("uname")
-        passwd = request.form.get("pword")
-        # result = dbi.create_new_user(dict(fname='User', lname='Name', email=username, authenticator='lblrsm'))
-        # flash("Result of insert operation: {0}".format(result))
-        user_info = dbi.get_user_info(username)
-        # pdb.set_trace()
-        if user_info is None:
-            flash("Error:Sorry, No Such user exist!")
-            return redirect(url_for("auth.login"))
+    # Find out what URL to hit for Google login
+    google_provider_cfg = get_google_provider_cfg()
+    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-        if not validate(username, passwd, user_info, current_app.config["DEBUG"]):
-            flash("Error:Invalid Username/Password")
-            return redirect(url_for("auth.login"))
-
-        user = User(
-            username,
-            info={"lname": user_info.get("lname"), "fname": user_info.get("fname")},
-        )
-        login_user(user)
-
-        if user_info.get("deleted", False):  # User existed but deleted the profile,
-            flash("Info:User profile was deleted, please re-create the profile")
-            return redirect(url_for("profile.view"))
-
-        flash("Info:Login Successful!")
-        return redirect(request.args.get("next") or url_for("profile.view"))
-
-    if current_user.is_authenticated:
-        flash("Info:You are already logged in as {0}".format(current_user.get_id()))
-        return redirect(url_for("profile.view"))
-    return render_template("authenticate/login.html", content_header=header)
+    # Use library to construct the request for Google login and provide
+    # scopes that let you retrieve user's profile from Google
+    request_uri = client.prepare_request_uri(
+        authorization_endpoint,
+        redirect_uri=request.base_url + "/callback",
+        scope=["email"],
+    )
+    return redirect(request_uri)
 
 
-@authentication.route("/signup", methods=["GET", "POST"])
-def signup():
-    if request.method == "POST":
-        pass
+@auth.route("/login/callback")
+def callback():
+    # Get authorization code Google sent back to you
+    code = request.args.get("code")
 
-    return render_template("authenticate/signup.html")
+    # Find out what URL to hit to get tokens that allow you to ask for
+    # things on behalf of a user
+    google_provider_cfg = get_google_provider_cfg()
+    token_endpoint = google_provider_cfg["token_endpoint"]
 
+    token_url, headers, body = client.prepare_token_request(
+        token_endpoint,
+        authorization_response=request.url,
+        redirect_url=request.base_url,
+        code=code,
+    )
+    token_response = requests.post(
+        token_url,
+        headers=headers,
+        data=body,
+        auth=(
+            current_app.config["GOOGLE_CLIENT_ID"],
+            current_app.config["GOOGLE_CLIENT_SECRET"],
+        ),
+    )
 
-@authentication.route("/logout", methods=["GET"])
-@login_required
-def logout():
-    user = current_user
-    user.authenticated = False
-    # _user = user_session_management(user.get_id(), None, action='del')
-    flash("Info:Logged out successfully")
-    # print(_authenticated_user.keys())
-    logout_user()
+    # Parse the tokens!
+    client.parse_request_body_response(json.dumps(token_response.json()))
+
+    # Now that you have tokens (yay) let's find and hit the URL
+    # from Google that gives you the user's profile information,
+    # including their Google profile image and email
+    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+    uri, headers, body = client.add_token(userinfo_endpoint)
+    userinfo_response = requests.get(uri, headers=headers, data=body)
+
+    # user_resp={'sub': '100200154771991934741',
+    # 'picture': 'https://lh3.googleusercontent.com/a-/AOh14Gj65LOOJBS0hUCpvR_qtPL9rlEPNt6_5-GzUfzLUN4=s96-c',
+    # 'email': 'ninad.mhatre@gmail.com',
+    # 'email_verified': True}
+    user_resp = userinfo_response.json()
+
+    print(f'{user_resp=}')
+
+    if user_resp.get("email_verified"):
+        unique_id = user_resp["sub"]
+        users_email = user_resp["email"]
+    else:
+        return "User email not available or not verified by Google.", 400
+
+    user = User(id_=unique_id, email=users_email, access_token=client.access_token)
+
+    if not DAL.is_existing_user(unique_id, is_get_by_email=False):
+        user = DAL.add_user(user)
+
+    # Begin user session by logging the user in
+    if user:
+        login_user(user, duration=timedelta(hours=6))
+        DAL.save_token(user)
+    else:
+        flash(f"failed to create/login {users_email}!!", 'error')
     return redirect(url_for("home"))
 
 
-@authentication.route("/authorize/<string:provider>")
-def oauth_authorize(provider):
-    # TODO: Check if provider is configured!
-    if not current_user.is_anonymous:
-        return redirect(url_for(".login"))
+@auth.route("/logout", methods=["GET"])
+@login_required
+def logout():
+    user_email = current_user.email
+    logout_user()
 
-    oauth = OAuthSignIn.get_provider(provider_name=provider)
-    return oauth.authorize()
+    if not revoke_token(user_email):
+        flash("logged out from app but re-login will log you in with same user!!", 'error')
+
+    DAL.clear_token(user_email)
+    return redirect(url_for("home"))
 
 
-@authentication.route("/callback/<string:provider>")
-def oauth_callback(provider):
-    if not current_user.is_anonymous:
-        return redirect(url_for(".login"))
-    oauth = OAuthSignIn.get_provider(provider)
-    social_id, name, email, full_info = oauth.callback()
+@auth.route("/admin", methods=["GET", "POST"])
+@login_required
+def admin():
+    if request.method == "POST":
+        is_clear_cache = request.form.get("clear_cache")
+        if is_clear_cache:
+            db = get_dal()
+            db.get_user_tags.cache_clear()
 
-    if email is None:
-        flash(
-            "Error:Authentication failed/User declined the request/email address is not available"
-        )
-        flash("Warn:Try to login with provider which provides email address!")
-        return redirect(url_for(".login"))
+    return render_template("admin/admin.html")
 
-    # pdb.set_trace()
-    user_info = dbi.get_from_cache_or_db(email) or {}
-    # pdb.set_trace()
-    session["%s_authenticator" % email] = provider
-    user = User(
-        email, info={"fname": user_info.get("fname"), "lname": user_info.get("lname")}
-    )
 
-    old_authenticator = user_info.get("authenticator")
+def revoke_token(user_email: str):
+    if user_email is None:
+        return
 
-    if user_info and old_authenticator and old_authenticator != provider:
-        flash(
-            'Error:User "%s" already exist, originally signed in with %s'
-            % (email, user_info.get("authenticator"))
-        )
-        return redirect(url_for(".login"))
+    user = DAL.get_user_by_email(user_email)
 
-    if not user_info:  # this is a new user update the count
-        dbi.update_stats(user_cnt=1)
+    revoke = requests.post('https://oauth2.googleapis.com/revoke',
+                           params={'token': user.access_token},
+                           headers={'content-type': 'application/x-www-form-urlencoded'})
 
-    login_user(user, remember=False)
-
-    if not user_info:
-        fname, lname = "", ""
-        if name and isinstance(name, (list, tuple)):
-            fname, lname = name
-
-        url = url_for("profile.update") + "?f=%s&l=%s" % (
-            fname,
-            lname,
-        )  # Redirect to create page
+    status_code = getattr(revoke, 'status_code')
+    if status_code == 200:
+        print('Credentials successfully revoked.')
+        is_successful = True
     else:
-        url = url_for("profile.view")
+        print('An error occurred.')
+        is_successful = False
 
-    session[email] = full_info
-    return redirect(request.args.get("next") or url)
+    return is_successful

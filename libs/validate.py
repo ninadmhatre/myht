@@ -285,12 +285,14 @@ class GenerateForm(Validator):
         #  - selected is not empty!
         #  - max tags <= 300
 
-        if not self.selected:
+        selected = set(self.selected)
+
+        if not selected:
             self.errors.add("No tags were selected!!")
-        elif len(self.selected) > Limits.MaxGenTags:
+        elif len(selected) > Limits.MaxGenTags:
             self.errors.add("This is suspicious, more than 300 tags were selected!!")
         else:
-            self.formatted = " ".join([f"#{t}" for t in self.selected])
+            self.formatted = " ".join([f"#{t}" for t in selected])
 
     @property
     def get_result(self):

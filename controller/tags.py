@@ -12,7 +12,7 @@ from flask import (
 )
 from flask_login import login_required, current_user
 
-from dal import get_dal
+from dal.dbobj import get_dal
 from collections import defaultdict
 from sqlite3 import IntegrityError
 
@@ -22,7 +22,7 @@ from libs.validate import AddForm, ManageForm, GenerateForm
 tags = Blueprint("tags", __name__, url_prefix="/tags")
 
 # user = "ninad.mhatre@gmail.com"
-dal = get_dal()
+DAL = get_dal()
 
 # data = {
 #     user: {
@@ -50,7 +50,7 @@ def parse_tags(string: str) -> (dict, list):
 
 
 def remove_existing(user_tags, user) -> dict:
-    existing_tags = dal.get_user_tags(user)
+    existing_tags = DAL.get_user_tags(user)
 
     result = {}
 
@@ -71,15 +71,17 @@ def add_tags():
     if request.method == "POST":
         form = AddForm(request.form)
         form.parse()
-        form.validate(dal.get_user_tags(current_user.id))
+        form.validate(DAL.get_user_tags(current_user.id))
 
         if form.has_errors():
             form.flash_errors(category="error")
+            # TODO:
+            #  on errors, populate all others
         else:
             tags_to_add = form.get_result
-            dal.insert(current_user.id, tags_to_add)
+            DAL.insert(current_user.id, tags_to_add)
 
-    result = dal.get_user_tags(current_user.id)
+    result = DAL.get_user_tags(current_user.id)
     additional = 10 - len(result)
 
     return render_template("tags/add.html", existing=result, additional=additional)
@@ -90,7 +92,7 @@ def add_tags():
 def manage_tags():
     if request.method == "POST":
         # deleted_cat, new_vals, deleted_vals = [], defaultdict(list), defaultdict(list)
-        existing_tags = dal.get_user_tags(current_user.id)
+        existing_tags = DAL.get_user_tags(current_user.id)
 
         form = ManageForm(request.form, existing_tags)
         form.parse()
@@ -101,9 +103,9 @@ def manage_tags():
                 form.flash_errors()
             else:
                 deleted_categories, new_vals = form.get_result
-                dal.update(current_user.id, deleted_categories, new_vals)
+                DAL.update(current_user.id, deleted_categories, new_vals)
 
-    result = dal.get_user_tags(current_user.id)
+    result = DAL.get_user_tags(current_user.id)
     return render_template("tags/manage.html", tags=result)
 
 
@@ -111,7 +113,7 @@ def manage_tags():
 @login_required
 def generate_tags():
     if request.method == "POST":
-        existing_tags = dal.get_user_tags(current_user.id)
+        existing_tags = DAL.get_user_tags(current_user.id)
 
         form = GenerateForm(request.form, existing_tags)
         form.parse()
@@ -122,5 +124,5 @@ def generate_tags():
             return render_template("tags/generate.html", tags=existing_tags)
         return render_template("tags/generate.html", generated=form.get_result)
     else:
-        result = dal.get_user_tags(current_user.id)
+        result = DAL.get_user_tags(current_user.id)
         return render_template("tags/generate.html", tags=result)

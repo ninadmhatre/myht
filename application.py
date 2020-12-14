@@ -4,8 +4,7 @@ from datetime import timedelta
 
 import custom_filter
 
-from libs.Utils import User
-from dal import get_dal
+from dal.dbobj import get_dal
 
 # Flask
 from flask import (
@@ -28,14 +27,9 @@ from flask_login import (
 )
 from flask_seasurf import SeaSurf
 
-# from authlib.integrations.flask_client import OAuth
-# from authlib.
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
-# from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
-# from flask_security import current_user, login_user, logout_user
 
 users = {
     "ninad.mhatre@gmail.com": generate_password_hash("n1"),
@@ -46,6 +40,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 _static_folder = os.path.join(BASE_DIR, "static")
 instance_dir = os.path.join(BASE_DIR, "instance")
+DAL = get_dal()
 
 app = Flask(
     __name__,
@@ -58,43 +53,22 @@ app.config.from_object("instance.default")
 app.config.from_object("instance.{0}".format(os.environ.get("APP_ENVIRONMENT", "dev")))
 app.config["BASE_DIR"] = BASE_DIR
 
-# oauth = OAuth(app)
-auth = HTTPBasicAuth()
+# auth = HTTPBasicAuth()
 
 dummy_users = {"ninad.mhatre@gmail.com": "gmail", "nmhatre@outlook.com": "outlook"}
 
-# fb_bp = make_facebook_blueprint(
-#     client_id=app.config['FACEBOOK_OAUTH_CLIENT_ID'],
-#     client_secret=app.config['FACEBOOK_OAUTH_CLIENT_SECRET'],
-#     scope='id,name,email',
-# )
-
-# custom_logger = AppLogger(app.config['LOGGER'])
-# app.logger.addHandler(custom_logger.get_log_handler(LoggerTypes.File))
-
 csrf = SeaSurf(app)
-
-# engine = create_engine('sqlite:///blog.db')
-# meta = MetaData()
-
-# sql_storage = SQLAStorage(engine, metadata=meta)
-# blog_engine = BloggingEngine(app, sql_storage)
 login_manager = LoginManager(app)
-# meta.create_all(bind=engine)
-
-# page_view_engine = create_engine('sqlite:///stats.db')
-# page_view_meta = MetaData()
-
-# page_view_storage = SqliteStorage(page_view_engine, metadata=page_view_meta)
-# page_view_meta.create_all(bind=page_view_engine)
-# page_view_stats = Informer(page_view_storage)
-
 
 app.logger.info("Starting Application")
 
 # Login manager settings
-
 login_manager.session_protection = "strong"
+login_manager.refresh_view = "auth.login"
+login_manager.needs_refresh_message = (
+    "To protect your account, please re-authenticate to access this page."
+)
+login_manager.needs_refresh_message_category = "info"
 
 
 @app.before_request
@@ -115,27 +89,15 @@ def load_user(user_id):
     :param user_id:
     :return:
     """
-    return User(user_id)
+    return DAL.get_user_by_email(user_id)
 
-
-@auth.verify_password
-def verify_password(username, password):
-    print(f"username={username} | password={password}")
-
-    if dummy_users.get(username, None) == password:
-        user = User(user_id=username)
-        login_user(user, duration=timedelta(minutes=5))
-
-        return user
-
-
-# Initialize Other Modules
-# Modules which requires instance of 'app' to be created first!
-# from model.StaticAssets import bundles, Environment
-
-# asset = Environment(app)
-# asset.init_app(app)
-# asset.register(bundles)
+# @auth.verify_password
+# def verify_password(username, password):
+#     if dummy_users.get(username, None) == password:
+#         user = User(user_id=username)
+#         login_user(user, duration=timedelta(minutes=5))
+#
+#         return user
 
 
 @app.route("/")
@@ -195,77 +157,30 @@ def test():
     return render_template("dump/dict.html", data=d)
 
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        user = request.form.get("user")
-        key = request.form.get("chaabi")
-
-        if dummy_users.get(user) == key:
-            user = User(user_id=user)
-            login_user(user, duration=timedelta(minutes=5))
-
-            return redirect("/")
-        else:
-            flash("login failed!!", "error")
-
-    return render_template("login/login.html")
-
-
-@app.route("/admin", methods=["GET", "POST"])
-@login_required
-def admin():
-    if request.method == "POST":
-        is_clear_cache = request.form.get("clear_cache")
-        if is_clear_cache:
-            db = get_dal()
-            db.get_user_tags.cache_clear()
-
-    return render_template("admin/admin.html")
+# @app.route("/testlogin", methods=["GET", "POST"])
+# def login_basic():
+#     if request.method == "POST":
+#         user = request.form.get("user")
+#         key = request.form.get("chaabi")
+#
+#         if dummy_users.get(user) == key:
+#             user = User(user_id=user)
+#             login_user(user, duration=timedelta(minutes=5))
+#
+#             return redirect("/")
+#         else:
+#             flash("login failed!!", "error")
+#
+#     return render_template("login/login.html")
 
 
-# @app.route('/authorize')
-# def authorize():
-#     token = oauth.facebook.authorize_access_token()
-#     resp = oauth.facebook.get('account/verify_credentials.json', token)
-#     profile = resp.json()
-#     breakpoint()
-#     # do something with the token and profile
-#     return redirect('/')
-
-# Code Separated to Blueprints!
-# from controller.file_io import fileio, fileio_init
-# from controller.authentication import auth
-# from controller.admin import admin
-# from controller.apps import apps
 from controller.tags import tags
+from controller.faq import faq
+from controller.authentication import auth
 
-
-# app.register_blueprint(apps)
-# app.register_blueprint(admin)
 app.register_blueprint(tags)
-# app.register_blueprint(fb_bp, url_prefix='/login')
-
-# login_manager.login_facebook_view = 'facebook.login'
-# login_manager.login_view = 'login'
-
-
-# @app.route("/index", methods=['GET', 'POST'])
-# def index():
-#     # if not facebook.authorized:
-#         return redirect(url_for("facebook.login"))
-#     resp = facebook.get("/me")
-#     assert resp.ok, resp.text
-#     return "You are {name} on Facebook".format(name=resp.json()["name"])
-
-
-@app.route("/logout")
-@login_required
-def logout():
-    auth.current_user()
-    logout_user()
-    flash("You have logged out")
-    return redirect(url_for("login"))
+app.register_blueprint(faq)
+app.register_blueprint(auth)
 
 
 def has_no_empty_params(rule):
@@ -286,33 +201,6 @@ def site_map():
 
     return jsonify(links)
 
-
-# @fb_bp.connect_via(fb_bp)
-# def logged_in(blueprint, token):
-#     """
-#     create/login local user on successful OAuth login with github
-#     :param blueprint:
-#     :param token:
-#     :return:
-#     """
-#     breakpoint()
-#     if not token:
-#         flash("Failed to log in.", category="error")
-#         return False
-#
-#     session = blueprint.session
-#
-#     resp = session.get("/user")
-#
-#     if not resp.ok:
-#         msg = "Failed to fetch user info."
-#         flash(msg, category="error")
-#         return False
-#
-#     login_user(oauth.user)
-#     flash("Successfully signed in.")
-#
-#     return False
 
 if __name__ == "__main__":
     app.run(port=app.config["PORT"])

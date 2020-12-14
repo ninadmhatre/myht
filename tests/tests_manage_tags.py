@@ -1,7 +1,7 @@
 import unittest
 from copy import copy
 
-from dal import get_dal
+from dal.dbobj import get_dal
 from libs.Utils import obscure
 from libs.validate import ManageForm
 

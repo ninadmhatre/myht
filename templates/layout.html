@@ -46,7 +46,7 @@
     {% endif %}
 
 </head>
-<body id="page-top" {% if post %}onload="prettyPrint()"{% endif %}>
+<body id="page-top">
     <script type="text/javascript">
         {% block java_script %}{% endblock %}
     </script>
@@ -145,21 +145,7 @@
     {% block js %}{% endblock js %}
 
     {% block extrajs %}
-    <!--<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>-->
-    <!--<script type="text/x-mathjax-config">-->
-          <!--MathJax.Hub.Config({-->
-          <!--"HTML-CSS": {-->
-          <!--styles: {-->
-          <!--".MathJax .mo, .MathJax .mi": {color: "black ! important"}}-->
-          <!--},-->
-          <!--tex2jax: {inlineMath: [['$','$'], ['\\\\(','\\\\)']],processEscapes: true}-->
-          <!--});-->
-    <!--</script>-->
     {% endblock extrajs %}
-
-    {% assets "third_party_js" %}
-        <script src="{{ ASSET_URL }}" type="text/javascript"></script>
-    {% endassets %}
 
     <script>
         $(document).ready(function () {

@@ -11,16 +11,16 @@ import zlib
 from base64 import urlsafe_b64encode as b64e, urlsafe_b64decode as b64d
 
 
-class User(UserMixin):
-    """
-    User Mixin; with get name being changed!
-    """
+# class User(UserMixin):
+#     """
+#     User Mixin; with get name being changed!
+#     """
 
-    def __init__(self, user_id):
-        self.id = user_id
+#     def __init__(self, user_id):
+#         self.id = user_id
 
-    def get_id(self):
-        return self.id
+#     def get_id(self):
+#         return self.id
 
 
 def to_byte(s: str) -> bytes:
