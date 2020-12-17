@@ -1,3 +1,5 @@
+# postgres
+
 import logging
 from contextlib import ContextDecorator
 import sqlite3
@@ -6,7 +8,6 @@ from typing import Any
 
 from libs.dt import User
 from dal import DB
-from instance import get_sqllite_db_file_path
 
 log = logging.getLogger(__name__)
 
@@ -23,25 +24,11 @@ class DbConn(ContextDecorator):
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-# CREATE TABLE "hashes" (
-# 	"user"	TEXT NOT NULL,
-# 	"category"	TEXT NOT NULL,
-# 	"tags"	TEXT NOT NULL DEFAULT '-',
-# 	PRIMARY KEY("user","category")
-# )
 
-# CREATE TABLE "users" (
-# 	"email"	TEXT NOT NULL,
-# 	"uid"	TEXT NOT NULL,
-# 	"token"	TEXT,
-# 	PRIMARY KEY("email","uid")
-# )
-
-
-class SQLiteDAL(DB):
+class PgressDAL(DB):
     def __init__(self, tbl_name="main.hashes", usr_tbl_name="main.users"):
         super().__init__()
-        self.db_file = get_sqllite_db_file_path() or self.__get_db_file()
+        self.db_file = self.__get_db_file()
         self.db_tbl = tbl_name
         self.usr_tbl = usr_tbl_name
         self.init_connection()

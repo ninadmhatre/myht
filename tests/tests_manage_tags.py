@@ -1,5 +1,4 @@
 import unittest
-from copy import copy
 
 from dal.dbobj import get_dal
 from libs.Utils import obscure

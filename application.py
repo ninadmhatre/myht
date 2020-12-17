@@ -1,6 +1,5 @@
 # Core
 import os
-from datetime import timedelta
 
 import custom_filter
 
@@ -117,13 +116,20 @@ def page_not_found(e):
     :return: error page with error code
     """
     msg = "404: Page you are looking for does not exist!"
-    return render_template("error_code/generic.html", err_msg=msg), 404
+    return render_template("error_code/generic.html", err_msg=msg, title="404: Page Not Found"), 404
 
 
 @app.errorhandler(401)
+def re_login(e):
+    return redirect(url_for('auth.login'), code=303)
+    # msg = "401: You need to login to access this page, this incident will be reported!!"
+    # return render_template("error_code/generic.html", err_msg=msg, title="401: Re-login"), 401
+
+
+@app.errorhandler(403)
 def unauthorized_access(e):
-    msg = "401: You need to login to access this page, this incident will be reported!!"
-    return render_template("error_code/generic.html", err_msg=msg), 401
+    msg = "403: You do not have access to this page"
+    return render_template("error_code/generic.html", err_msg=msg, title="403: No Access!!"), 403
 
 
 @app.errorhandler(500)
@@ -132,7 +138,7 @@ def internal_server_error(e):
         "500: Something just crashed! I am going to spend my day trying to "
         "figure out what went wrong, wanna help??"
     )
-    return render_template("error_code/generic.html", err_msg=msg), 500
+    return render_template("error_code/generic.html", err_msg=msg, title="500: Please retry"), 500
 
 
 @app.route("/test")

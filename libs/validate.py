@@ -49,7 +49,7 @@ class Validator:
 
 
 TAG_RE = re.compile(r"\w+", re.UNICODE)
-NOT_ALLOWED_CHARS = ("!", "$", "%", "^", "&", "*", "+", ".", "#")
+NOT_ALLOWED_CHARS = ("!", "$", "%", "^", "&", "*", "+", ".", "#", "@")
 
 
 @dataclass(frozen=True)
@@ -84,6 +84,7 @@ class AddForm(Validator):
         super().__init__(form)
         self.new_tags = []
         self.tags_to_add = {}
+        self.error_entry_idx = []
 
     def parse(self):
         for i in range(10):
@@ -112,7 +113,9 @@ class AddForm(Validator):
         #  - max tag per count - 30
         #  - no spaces in each tag
 
-        for cat, tags in self.new_tags:
+        for idx, cat_tags in enumerate(self.new_tags):
+            cat, tags = cat_tags
+
             has_errors = False
 
             if self.is_blank(cat) or self.is_blank(tags):
@@ -138,6 +141,8 @@ class AddForm(Validator):
 
             if not has_errors:
                 self.tags_to_add[cat] = set(_tags)
+            else:
+                self.error_entry_idx.append(idx)
 
     @property
     def get_result(self):
@@ -177,10 +182,7 @@ class ManageForm(Validator):
                         self.errors.update(err)
                     else:
                         self.new_vals[cat].extend(new_tags)
-            else:
-                if key.startswith("tag_del"):
-                    # breakpoint()
-                    pass
+            elif key.startswith("tag_del") or key.startswith("tag_upd"):
                 cat_tag = key.split("_", 2)[2]
                 cat, tag = cat_tag.split(":", 1)
 

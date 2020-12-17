@@ -1,36 +1,16 @@
-from functools import lru_cache as cache
-
 from flask import (
     Blueprint,
-    current_app,
     request,
-    jsonify,
     render_template,
-    flash,
-    redirect,
-    url_for,
 )
 from flask_login import login_required, current_user
 
 from dal.dbobj import get_dal
-from collections import defaultdict
-from sqlite3 import IntegrityError
-
-from libs.Utils import unobscure
 from libs.validate import AddForm, ManageForm, GenerateForm
 
 tags = Blueprint("tags", __name__, url_prefix="/tags")
 
-# user = "ninad.mhatre@gmail.com"
 DAL = get_dal()
-
-# data = {
-#     user: {
-#         "natute": ['sun', 'moon', 'river'],
-#         "manmade": ['dam', 'boat', 'ship', 'bridge'],
-#         'vehicles': ['car', 'bike', 'cycle']
-#     }
-# }
 
 
 def parse_tags(string: str) -> (dict, list):
@@ -65,18 +45,38 @@ def remove_existing(user_tags, user) -> dict:
     return result
 
 
+def populate_failed_vals(existing, user_entered, wrong_entry_idx: list):
+    values = []
+    for i in range(11):
+        values.append((None, None, False))
+
+    insert_at = len(existing)
+    for idx, cat_vals in enumerate(user_entered):
+        cat, vals = cat_vals
+        _vals = ",".join(vals)
+        values[insert_at] = (cat, _vals, idx in wrong_entry_idx)
+        insert_at += 1
+
+    return values
+
+
 @tags.route("/add", methods=["GET", "POST"])
 @login_required
 def add_tags():
+    new_tags_with_err = None
+
     if request.method == "POST":
+        existing_tags = DAL.get_user_tags(current_user.id)
+
         form = AddForm(request.form)
         form.parse()
-        form.validate(DAL.get_user_tags(current_user.id))
+        form.validate(existing_tags)
 
         if form.has_errors():
             form.flash_errors(category="error")
-            # TODO:
-            #  on errors, populate all others
+            new_tags_with_err = populate_failed_vals(
+                existing_tags, form.new_tags, form.error_entry_idx
+            )
         else:
             tags_to_add = form.get_result
             DAL.insert(current_user.id, tags_to_add)
@@ -84,14 +84,18 @@ def add_tags():
     result = DAL.get_user_tags(current_user.id)
     additional = 10 - len(result)
 
-    return render_template("tags/add.html", existing=result, additional=additional)
+    return render_template(
+        "tags/add.html",
+        existing=result,
+        additional=additional,
+        failed_vals=new_tags_with_err,
+    )
 
 
 @tags.route("/manage", methods=["GET", "POST"])
 @login_required
 def manage_tags():
     if request.method == "POST":
-        # deleted_cat, new_vals, deleted_vals = [], defaultdict(list), defaultdict(list)
         existing_tags = DAL.get_user_tags(current_user.id)
 
         form = ManageForm(request.form, existing_tags)

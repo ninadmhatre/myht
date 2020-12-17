@@ -1,7 +1,6 @@
 import unittest
-from copy import copy
 
-from dal import get_dal
+from dal.dbobj import get_dal
 from libs.validate import AddForm
 
 TEST_DB_TABLE = "test_hashes"

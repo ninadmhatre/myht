@@ -6,20 +6,24 @@ import requests
 from flask import (
     Blueprint,
     render_template,
-    abort,
     request,
     flash,
     redirect,
     url_for,
     current_app,
-    session,
+    abort
 )
-from flask_login import login_user, logout_user, login_required, current_user, UserMixin, login_manager
+from flask_login import (
+    login_user,
+    logout_user,
+    login_required,
+    current_user,
+)
 from oauthlib.oauth2 import WebApplicationClient
 
 from dal.dbobj import get_dal
-from libs.dt import User
 from instance import get_oauth_details
+from libs.dt import User
 
 __OAUTH_INFO = get_oauth_details()
 
@@ -94,8 +98,6 @@ def callback():
     # 'email_verified': True}
     user_resp = userinfo_response.json()
 
-    print(f'{user_resp=}')
-
     if user_resp.get("email_verified"):
         unique_id = user_resp["sub"]
         users_email = user_resp["email"]
@@ -112,7 +114,7 @@ def callback():
         login_user(user, duration=timedelta(hours=6))
         DAL.save_token(user)
     else:
-        flash(f"failed to create/login {users_email}!!", 'error')
+        flash(f"failed to create/login {users_email}!!", "error")
     return redirect(url_for("home"))
 
 
@@ -123,7 +125,9 @@ def logout():
     logout_user()
 
     if not revoke_token(user_email):
-        flash("logged out from app but re-login will log you in with same user!!", 'error')
+        flash(
+            "logged out from app but re-login will log you in with same user!!", "error"
+        )
 
     DAL.clear_token(user_email)
     return redirect(url_for("home"))
@@ -132,6 +136,9 @@ def logout():
 @auth.route("/admin", methods=["GET", "POST"])
 @login_required
 def admin():
+    if current_user.email != "ninad.mhatre1@gmail.com":
+        abort(403)
+
     if request.method == "POST":
         is_clear_cache = request.form.get("clear_cache")
         if is_clear_cache:
@@ -147,16 +154,18 @@ def revoke_token(user_email: str):
 
     user = DAL.get_user_by_email(user_email)
 
-    revoke = requests.post('https://oauth2.googleapis.com/revoke',
-                           params={'token': user.access_token},
-                           headers={'content-type': 'application/x-www-form-urlencoded'})
+    revoke = requests.post(
+        "https://oauth2.googleapis.com/revoke",
+        params={"token": user.access_token},
+        headers={"content-type": "application/x-www-form-urlencoded"},
+    )
 
-    status_code = getattr(revoke, 'status_code')
+    status_code = getattr(revoke, "status_code")
     if status_code == 200:
-        print('Credentials successfully revoked.')
+        print("Credentials successfully revoked.")
         is_successful = True
     else:
-        print('An error occurred.')
+        print("An error occurred.")
         is_successful = False
 
     return is_successful

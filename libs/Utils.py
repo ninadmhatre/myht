@@ -1,5 +1,6 @@
 __author__ = "ninad"
 
+from functools import wraps
 from typing import Union
 import os
 import simplejson as json
@@ -41,6 +42,18 @@ def unobscure(obscured: bytes) -> str:
     if obscured in ("", None):
         return ""
     return to_str(zlib.decompress(b64d(obscured)))
+
+
+# def requires_roles(*roles):
+#     def wrapper(f):
+#         @wraps(f)
+#         def wrapped(*args, **kwargs):
+#             if get_current_user_role() not in roles:
+#                 return "You've got no permission to access this page.", 403
+#             return f(*args, **kwargs)
+#         return wrapped
+#     return wrapper
+
 
 
 class Utility(object):
