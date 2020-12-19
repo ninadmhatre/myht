@@ -17,23 +17,10 @@ from flask import (
     url_for,
 )
 from flask_login import (
-    UserMixin,
     LoginManager,
-    login_user,
-    logout_user,
     login_required,
-    current_user,
 )
 from flask_seasurf import SeaSurf
-
-from flask_httpauth import HTTPBasicAuth
-from werkzeug.security import generate_password_hash, check_password_hash
-
-
-users = {
-    "ninad.mhatre@gmail.com": generate_password_hash("n1"),
-    "nmhatre@gmail.com": generate_password_hash("n2"),
-}
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -51,10 +38,6 @@ app = Flask(
 app.config.from_object("instance.default")
 app.config.from_object("instance.{0}".format(os.environ.get("APP_ENVIRONMENT", "dev")))
 app.config["BASE_DIR"] = BASE_DIR
-
-# auth = HTTPBasicAuth()
-
-dummy_users = {"ninad.mhatre@gmail.com": "gmail", "nmhatre@outlook.com": "outlook"}
 
 csrf = SeaSurf(app)
 login_manager = LoginManager(app)
