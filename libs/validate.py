@@ -262,7 +262,6 @@ class ManageForm(Validator):
 
     @property
     def get_result(self):
-        print(f"{self.deleted_categories=} | {self.new_vals=}")
         return self.deleted_categories, self.new_vals
 
 

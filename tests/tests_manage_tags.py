@@ -81,7 +81,6 @@ class ManageFormTests(unittest.TestCase):
         form.validate()
 
         self.assertTrue(form.has_errors())
-        print(f"{form.errors=}")
         self.assertTrue(len(form.errors) == 3)
 
     def test_deleted_tag_is_re_added(self):
