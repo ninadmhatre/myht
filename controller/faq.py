@@ -22,3 +22,7 @@ def terms():
 def about():
     return render_template("faq/about.html")
 
+
+@faq.route("/contact")
+def contact():
+    return render_template("faq/contact.html")

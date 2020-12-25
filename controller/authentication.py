@@ -22,8 +22,9 @@ from flask_login import (
 from oauthlib.oauth2 import WebApplicationClient
 
 from dal.dbobj import get_dal
-from instance import get_oauth_details
+from instance import get_oauth_details, get_admin_users
 from libs.dt import User
+from libs.utils import is_admin_user
 
 __OAUTH_INFO = get_oauth_details()
 
@@ -136,7 +137,7 @@ def logout():
 @auth.route("/admin", methods=["GET", "POST"])
 @login_required
 def admin():
-    if current_user.email != "ninad.mhatre1@gmail.com":
+    if not is_admin_user(current_user.email, get_admin_users()):
         abort(403)
 
     if request.method == "POST":

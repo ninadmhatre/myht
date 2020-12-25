@@ -1,7 +1,7 @@
 import unittest
 
 from dal.dbobj import get_dal
-from libs.Utils import obscure
+from libs.utils import obscure
 from libs.validate import ManageForm
 
 TEST_DB_TABLE = "test_hashes"

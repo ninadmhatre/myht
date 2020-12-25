@@ -19,3 +19,7 @@ def get_oauth_details(provider: str = "GOOGLE") -> OAuthInfo:
 
 def get_sqllite_db_file_path():
     return
+
+
+def get_admin_users() -> tuple:
+    return ADMIN_USERS

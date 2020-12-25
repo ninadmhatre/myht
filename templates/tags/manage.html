@@ -4,6 +4,9 @@
 {% block title %}Manage Tags{% endblock %}
 
 {% block jquery %}
+    var deleted_cats = 0;
+    var deleted_tags = 0;
+
     $(".cat-chk-box").change(function() {
         if ($(this).is(':checked')) {
             $(this).parents("tr").find(".tag-chk-box").each(function() {
@@ -14,7 +17,8 @@
             });
             $(this).parents("tr").find(".tag-new-text").each(function() {
                 $(this).hide();
-            }); 
+            });
+            deleted_cats++;
         } else {
             $(this).parents("tr").find(".tag-chk-box").each(function() {
                 $(this).prop("checked", false);
@@ -24,9 +28,40 @@
             }); 
             $(this).parents("tr").find(".tag-new-text").each(function() {
                 $(this).show();
-            }); 
+            });
+            deleted_cats--;
         }
     });
+
+    $(".tag-chk-box").change(function() {
+        if ($(this).is(':checked')) {
+            deleted_tags++;
+        } else {
+            deleted_tags--;
+        }
+    });
+
+    $("#manage-tags").submit(function(e) {
+        e.preventDefault();
+
+        if ( deleted_cats > 0 || deleted_tags > 0 ) {
+            $.confirm({
+                title: 'Delete confirmation!',
+                content: 'You are about to delete (' + deleted_cats + ') categorie(s) and (' + deleted_tags + ') tag(s), are you sure?',
+                buttons: {
+                    yes: function () {
+                        action: e.currentTarget.submit();
+                    },
+                    no: function () {
+                        $.alert('cancelling form submission');
+                    },
+                }
+            });
+        } else {
+            e.currentTarget.submit();
+        }
+    });
+
 {% endblock %}
 
 {% block body %}
@@ -55,7 +90,7 @@
                             </ol>
                         </div>
                         <div class="d-flex">
-                            <form class="w-100" action="" method="post" enctype="multipart/form-data">
+                            <form id="manage-tags" class="w-100" action="" method="post" enctype="multipart/form-data">
                                 {{ helper.addCSRFToken() }}
                                 <table class="table table-bordered table-hover">
                                     <thead class="thead-dark">

@@ -6,4 +6,5 @@ from application import app
 
 if __name__ == "__main__":
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+    os.environ['APP_ENVIRONMENT'] = "dev"
     app.run(host="0.0.0.0", port=app.config["PORT"], debug=True)

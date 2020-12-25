@@ -4,7 +4,7 @@ from collections import defaultdict
 from flask import flash
 import re
 
-from libs.Utils import unobscure
+from libs.utils import unobscure
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

@@ -13,9 +13,9 @@
           <div class="row h-100">
             <div class="col-lg-7 my-auto">
               <div class="header-content mx-auto">
-                <h1 class="mb-5">Organize your hashtags easy way, <b>for free!</b></h1>
-                <h4 class="mb-5"><b>Create, Update & Delete Tags Privately With Full Control.</b></h4>
-                <h6 class="mb-5"><b>supports unicode characters "#netherlands🇳🇱🌷 #india🇮🇳 #何か #ఏదో #काहीतरी"</b></h6>
+                <h1 class="mb-4">Do you use lot of #hashtags? & Struggling to manage them effectively?</h1>
+                <h4 class="mb-4">Look no more, Manage your #hashtags effectively <b>For Free</b> & with <b>Full Control</b>.</h4>
+                <h6 class="mb-4"><b>supports unicode characters "#netherlands🇳🇱🌷 #india🇮🇳 #何か #ఏదో #काहीतरी"</b></h6>
                 {% if not current_user.is_authenticated %}
                     <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-xl js-scroll-trigger" title="Login With Google">Start Now for Free!</a>
                 {% else %}
@@ -25,7 +25,7 @@
             </div>
             <div class="col-lg-5 my-auto">
               <!-- Demo image for screen mockup, you can put an image here, some HTML, an animation, video, or anything else! -->
-              <h6 class="mb-3">Picture is worth million words, work flow in 1 image</h6>
+              <h6 class="mb-3">Complete workflow in one image, picture is worth million words!</h6>
               <img src="{{ url_for('static', filename='save-tag-all-in-one-pic-box.png') }}" class="image img-fluid" alt=""
                    title="Entire functionality explained in one picture.">
             </div>

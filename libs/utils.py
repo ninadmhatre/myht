@@ -55,6 +55,9 @@ def unobscure(obscured: bytes) -> str:
 #     return wrapper
 
 
+def is_admin_user(user_email: str, allowed_users: tuple) -> bool:
+    return user_email in allowed_users
+
 
 class Utility(object):
     @staticmethod

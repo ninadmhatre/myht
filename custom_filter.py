@@ -2,7 +2,7 @@ __author__ = "ninad"
 
 import jinja2
 import hashlib
-from libs.Utils import Utility, obscure as encode, to_byte
+from libs.utils import Utility, obscure as encode, to_byte
 
 
 def snippet(text, length=200):
@@ -40,6 +40,18 @@ jinja2.filters.FILTERS["page_id"] = hash_me
 jinja2.filters.FILTERS["toBoolean"] = toBoolean
 jinja2.filters.FILTERS["toAscii"] = toAscii
 jinja2.filters.FILTERS["obscure"] = obscure
+
+
+def get_custom_filters():
+    return [
+        snippet.__name__,
+        hash_me.__name__,
+        toBoolean.__name__,
+        to_byte.__name__,
+        toAscii.__name__,
+        obscure.__name__,
+    ]
+
 
 # env = Environment()
 # env.filters['snippet'] = snippet

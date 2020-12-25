@@ -3,24 +3,30 @@ import os
 
 import custom_filter
 
-from dal.dbobj import get_dal
-
 # Flask
 from flask import (
     Flask,
     render_template,
     redirect,
-    request,
     session,
-    flash,
     jsonify,
     url_for,
+    abort,
 )
 from flask_login import (
-    LoginManager,
-    login_required,
+    LoginManager, login_required, current_user
 )
 from flask_seasurf import SeaSurf
+
+from controller.authentication import auth
+from controller.faq import faq
+
+# User
+from controller.tags import tags
+from dal.dbobj import get_dal
+from libs.flask_log import LogSetup
+from libs.utils import is_admin_user
+from instance import get_admin_users
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -28,21 +34,36 @@ _static_folder = os.path.join(BASE_DIR, "static")
 instance_dir = os.path.join(BASE_DIR, "instance")
 DAL = get_dal()
 
+
+class ReverseProxy(object):
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        if os.environ.get('APP_ENVIRONMENT', "prod") == "prod":
+            environ['wsgi.url_scheme'] = "https"
+
+        return self.app(environ, start_response)
+
+
 app = Flask(
     __name__,
     instance_path=instance_dir,
     static_folder=_static_folder,
     static_url_path="/static",
 )
+app.wsgi_app = ReverseProxy(app.wsgi_app)
 
 app.config.from_object("instance.default")
 app.config.from_object("instance.{0}".format(os.environ.get("APP_ENVIRONMENT", "dev")))
 app.config["BASE_DIR"] = BASE_DIR
 
+log = LogSetup(app)
 csrf = SeaSurf(app)
 login_manager = LoginManager(app)
 
 app.logger.info("Starting Application")
+app.logger.debug(f"loaded custom_filters: {custom_filter.get_custom_filters()}")
 
 # Login manager settings
 login_manager.session_protection = "strong"
@@ -73,14 +94,6 @@ def load_user(user_id):
     """
     return DAL.get_user_by_email(user_id)
 
-# @auth.verify_password
-# def verify_password(username, password):
-#     if dummy_users.get(username, None) == password:
-#         user = User(user_id=username)
-#         login_user(user, duration=timedelta(minutes=5))
-#
-#         return user
-
 
 @app.route("/")
 def home():
@@ -105,8 +118,6 @@ def page_not_found(e):
 @app.errorhandler(401)
 def re_login(e):
     return redirect(url_for('auth.login'), code=303)
-    # msg = "401: You need to login to access this page, this incident will be reported!!"
-    # return render_template("error_code/generic.html", err_msg=msg, title="401: Re-login"), 401
 
 
 @app.errorhandler(403)
@@ -124,49 +135,6 @@ def internal_server_error(e):
     return render_template("error_code/generic.html", err_msg=msg, title="500: Please retry"), 500
 
 
-@app.route("/test")
-@login_required
-def test():
-    d = {}
-    for p in dir(request):
-        d[p] = getattr(request, p)
-
-    msgs = [
-        ("info", "info msg-0"),
-        ("error", "error msg-1"),
-        ("warn", "warning-2"),
-        ("error", "error-num-3"),
-        ("info", "info-num-4"),
-        ("warn", "warning-num-5"),
-    ]
-
-    for c, m in msgs:
-        flash(m, c)
-
-    return render_template("dump/dict.html", data=d)
-
-
-# @app.route("/testlogin", methods=["GET", "POST"])
-# def login_basic():
-#     if request.method == "POST":
-#         user = request.form.get("user")
-#         key = request.form.get("chaabi")
-#
-#         if dummy_users.get(user) == key:
-#             user = User(user_id=user)
-#             login_user(user, duration=timedelta(minutes=5))
-#
-#             return redirect("/")
-#         else:
-#             flash("login failed!!", "error")
-#
-#     return render_template("login/login.html")
-
-
-from controller.tags import tags
-from controller.faq import faq
-from controller.authentication import auth
-
 app.register_blueprint(tags)
 app.register_blueprint(faq)
 app.register_blueprint(auth)
@@ -179,7 +147,11 @@ def has_no_empty_params(rule):
 
 
 @app.route("/site-map")
+@login_required
 def site_map():
+    if not is_admin_user(current_user.email, get_admin_users()):
+        abort(403)
+
     links = []
     for rule in app.url_map.iter_rules():
         # Filter out rules we can't navigate to in a browser

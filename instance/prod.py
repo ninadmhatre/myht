@@ -1,7 +1,9 @@
 __author__ = 'ninad'
 
 PORT = 21000
+APP_ENVIRONMENT = "prod"
 ASSETS_DEBUG = True
 LOG_QUERIES = False
 DEBUG_TB_INTERCEPT_REDIRECTS = False
 DEBUG = False
+TESTING = False
