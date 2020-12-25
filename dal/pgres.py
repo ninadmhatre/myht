@@ -249,7 +249,7 @@ class PgressDAL(DB):
 
 
 if __name__ == '__main__':
-    db = SQLiteDAL()
+    db = PgressDAL()
     breakpoint()
     u = User(id_='123', email="ninad")
     print(f'>> Before: {u}')
