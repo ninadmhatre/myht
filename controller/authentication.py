@@ -143,8 +143,7 @@ def admin():
     if request.method == "POST":
         is_clear_cache = request.form.get("clear_cache")
         if is_clear_cache:
-            db = get_dal()
-            db.get_user_tags.cache_clear()
+            DAL.get_user_tags.cache_clear()
 
     return render_template("admin/admin.html")
 
@@ -163,10 +162,10 @@ def revoke_token(user_email: str):
 
     status_code = getattr(revoke, "status_code")
     if status_code == 200:
-        print("Credentials successfully revoked.")
+        current_app.logger.info("Credentials successfully revoked.")
         is_successful = True
     else:
-        print("An error occurred.")
+        current_app.logger.error(f"failed to revoke token for {user}")
         is_successful = False
 
     return is_successful

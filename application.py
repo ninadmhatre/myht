@@ -63,7 +63,6 @@ csrf = SeaSurf(app)
 login_manager = LoginManager(app)
 
 app.logger.info("Starting Application")
-app.logger.debug(f"loaded custom_filters: {custom_filter.get_custom_filters()}")
 
 # Login manager settings
 login_manager.session_protection = "strong"

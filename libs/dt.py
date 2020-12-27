@@ -27,4 +27,4 @@ class User(UserMixin):
         return self.email
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(email={self.email}, id={self.id})"
+        return f"<User(email={self.email}, id={self.id})>"
