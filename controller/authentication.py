@@ -145,7 +145,11 @@ def admin():
         if is_clear_cache:
             DAL.get_user_tags.cache_clear()
 
-    return render_template("admin/admin.html")
+    info = {
+        'user_count': DAL.get_user_count()
+    }
+
+    return render_template("admin/admin.html", info=info)
 
 
 def revoke_token(user_email: str):

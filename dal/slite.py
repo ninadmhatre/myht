@@ -189,6 +189,13 @@ class SQLiteDAL(DB):
             self.conn.commit()
             self.get_user_tags.cache_clear()
 
+    def get_user_count(self):
+        query = f"select count(email) from {self.usr_tbl}"
+        cur = self.conn.cursor()
+
+        row = cur.execute(query).fetchall()
+        return row[0][0]
+
     def get_user_by_email(self, user_email) -> User:
         user = None
         if self.is_existing_user(user_email):

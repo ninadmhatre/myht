@@ -51,6 +51,9 @@ class DB:
     def get_user_by_email(self, user_email):
         raise NotImplementedError
 
+    def get_user_count(self):
+        raise NotADirectoryError
+
     def get_user_by_uid(self, user_id):
         raise NotImplementedError
 

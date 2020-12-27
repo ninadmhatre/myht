@@ -13,11 +13,11 @@
                 </div>
             </div>
             <div class="card-body">
+                <div class="alert alert-primary" role="alert">
+                    Total Users: {{ info['user_count'] }}
+                </div>
                 <form id="admin-form" action="" method="post">
                     {{ helper.addCSRFToken() }}
-                    <div class="form-group row">
-                        <input id="alert_msg" name="alert_msg" class="form-control" type="text" placeholder="set alert message">
-                    </div>
                     <div class="form-group row">
                         <label class="form-control" for="clear_cache">Force DB Cache Clear</label>
                         <input id="clear_cache" name="clear_cache" class="form-control" type="checkbox">
