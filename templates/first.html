@@ -1,0 +1,197 @@
+{% extends 'theme.html' %}
+{% import 'macro/display_helper.html' as helper %}
+{% block title %}Ninad Mhatre - Profile{% endblock %}
+
+{% block topnavigation %}
+            <li> <a class="page-scroll" href="#use_cases">Use Cases</a> </li>
+            <li> <a class="page-scroll" href="#news">News</a> </li>
+            <li> <a class="page-scroll" href="/blog">Blog</a> </li>
+            <li> <a class="page-scroll" href="#tutorial">Tutorials</a> </li>
+            <li> <a class="page-scroll" href="#contact">Contact</a> </li>
+{% endblock %}
+
+{% block body %}
+    <header>
+        <div class="header-content">
+            <div class="header-content-inner">
+                <h2 style="color: white;">Untangle your deployments the easy way...</h2>
+                <hr>
+                <p style="color: white;">We think deployments should be easy, configurable, auditable and standardised. Deployment should be one of first things to get right not an annoying afterthought in building your application. Any deployment should just fit in with the existing framework. You should be free to use the language of your choice. You should be free to deploy to multiple operation systems. Vamos was designed and built keeping all of this in mind. </p>
+                <a href="#know_more" class="btn btn-primary bln-xl page-scroll">Know More</a>
+                <p class="col-leg-4" style="padding-top: 50px;" >
+                    <a href="#news" class="btn btn-default page-scroll" title="#announcement: Vamos new version released!">Vamos 1.3 Barcelona Released</a>
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <section id="know_more">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2 class="section-heading">Design Principles</h2>
+                    <hr class="primary">
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="service-box">
+                        <i class="wow bounceIn text-primary"><span class="glyphicon glyphicon-search gi-5x"></span></i>
+                        <h3>Transparency</h3>
+                        <p>Answers the 3 W's of audit and compliance. Who did What and When?</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="service-box">
+                        <i class="wow bounceIn text-primary" data-wow-delay=".1s"><span class="glyphicon glyphicon-eye-open gi-5x"></span></i>
+                        <h3>Visibility</h3>
+                        <p>Tracking the progress of deployments. See what was deployed where.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="service-box">
+                        <i class="wow bounceIn text-primary" data-wow-delay=".2s"><span class="glyphicon glyphicon-link gi-5x"></span></i>
+                        <h3>Integration</h3>
+                        <p>Reduce risk of lengthy migrations by integrating into existing release process.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="service-box">
+                        <i class="wow bounceIn text-primary" data-wow-delay=".3s"><span class="glyphicon glyphicon-ok gi-5x"></span></i>
+                        <h3>Simplicity</h3>
+                        <p>Resist the temptation for complexity as developers cannot be bothered to learn yet another tool!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-primary" id="benefits">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h2 class="section-heading">Benefits</h2>
+                    <hr class="light">
+                    <p class="text-faded">Integrating Vamos into your current deployment process will reduce the cost and time in delivering software to your clients. Why waste time and effort in developing a solution when you can get Vamos Deploy?</p>
+                    <hr class="light">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-4 col-md-8 text-left">
+                                    <ul style="font-size: 120%;">
+                                        <li>Standardize release procedures
+                                        <li>Reduce learning curve for staff
+                                        <li>Release more reliably. Fewer failures
+                                        <li>Release more frequently
+                                        <li>Reduce production support
+                                        <li>Free developers from supporting releases
+                                    </ul>
+                            </div>
+                            <div class="col-lg-4 col-md-8 text-left">
+                                    <ul style="font-size: 120%;">
+                                        <li>Increase co-operation between Dev and Ops teams
+                                        <li>Test more effectively and efficiently
+                                        <li>Roll-back in no time at all
+                                        <li>Track all activity with the full audit
+                                    </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="use_cases">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h2 class="section-heading">Use Cases</h2>
+                    <hr>
+                    <p>Find out where Vamos fits into your current application development cycle</p>
+                    <hr>
+                    <a href="http://vamosdeploy.blogspot.co.uk/p/blog-page.html" target="_blank">
+                      <img src="https://github.com/copenat/VamosImages/blob/master/VamosDeploy-BuildAndDeploySmall.png?raw=true" /> 
+                      <img src="https://raw.githubusercontent.com/copenat/VamosImages/master/VamosDeploy-WhereItFitsIn-v4-small.png" /> 
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-primary" id="news">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h2 class="section-heading">News</h2>
+                    <hr class="light">
+                    <p>New Release: Tower Above The Rest with Vamos Deploy 1.3 (Barcelona)</p>
+                    <hr class="light">
+                    <div class="container">
+                        <div class="row">
+                            <p class="text-left">New features:</p>
+                            <div class="text-left">
+                                    <ol style="font-size: 115%;">
+                                        <li>Vamos CLI for integration into CI tools and for constructing continuous delivery pipelines
+                                        <li>Vamos Dashboard for browser viewing of data
+                                        <li>Vamos Jump for launching GUI applications
+                                        <li>Deploy in-house and 3rd party software to numerous environments
+                                        <li>Full promotion life cycle of software packages
+                                        <li>Multi-site, multi-region, multi-o/s software deployments
+                                        <li>Deploy client and server side software
+                                        <li>Software dependency management
+                                        <li>Fast rollback of deployments; full or partial   
+                                        <li>Maintainable controls on what is deployed and who can deploy it
+                                        <li>Searchable audit tracker for auditor happiness!
+                                        <li>Repository tracker gives visibility of contents of individual repositories    
+                                        <li>Templatisation delivers environment specific application configuration
+                                    </ol>
+                            </div>
+                        </div>
+                    </div>                     
+                </div>         
+            </div>
+        </div>
+    </section>
+
+
+    <section id="blog">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h2 class="section-heading">Vamos Deploy Blog</h2>
+                    <hr>
+                    <p>We discuss how to use Vamos with various deployment scenarios, comments on topical issues and anything else that interests us. </p> 
+                    <div class="call-to-action">
+                        <a href="http://vamosdeploy.blogspot.co.uk/" target="_blank" class="btn btn-primary btn-xl wow tada">Lets read some</a>
+                        </a>
+                    </div>                   
+                </div>         
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-primary" id="tutorial">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h2 class="section-heading">Tutorials</h2>
+                    <hr class="light">
+                    <p>Prefer watching video to reading blogs? This is for you ...</p>
+                    <div class="call-to-action">
+                        <h4>Vamos Deploy YouTube Channel</h4>
+                        <a href="https://www.youtube.com/playlist?list=PLZ1qsu0Gk6VptR6dQv0RG2E9SfYne1QGK" target="_blank" class="btn btn-default btn-xl wow tada">
+                            <span title="Learn by watching videos"></span>
+                            <i style="color: #bb0000;" class="fa fa-youtube fa-4x wow bounceIn"></i>
+                        </a>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    {{ helper.contact_info() }}
+{% endblock %}

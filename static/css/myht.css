@@ -1,0 +1,17 @@
+.page-adjust {
+    min-height: 100vh;
+    padding-top: 100px;
+    padding-bottom:30px;
+}
+
+.mark-deleted::after {
+    content: "";
+    font-size: 5px;
+}
+#rm-field:checked ~ .mark-deleted::after {
+    content: "❌";
+}
+  
+.image:hover {
+    transform: scale(1.5); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+}

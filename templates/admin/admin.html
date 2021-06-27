@@ -1,0 +1,32 @@
+{% extends 'theme.html' %}
+{% import 'macro/display_helper.html' as helper %}
+
+
+{% block body %}
+    <div class="container  page-adjust">
+        <div class="row">
+            <div class="card w-100">
+                <div class="card-header bg-primary">
+                    <div class="d-flex">
+                        <div class="mr-auto p-2">Admin</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-primary" role="alert">
+                    Total Users: {{ info['user_count'] }}
+                </div>
+                <form id="admin-form" action="" method="post">
+                    {{ helper.addCSRFToken() }}
+                    <div class="form-group row">
+                        <label class="form-control" for="clear_cache">Force DB Cache Clear</label>
+                        <input id="clear_cache" name="clear_cache" class="form-control" type="checkbox">
+                    </div>
+                    <div class="row justify-content-between">
+                        <button id="login" type="submit" class="btn btn-success">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

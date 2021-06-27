@@ -1,0 +1,25 @@
+{% extends 'theme.html' %}
+{% import 'macro/display_helper.html' as helper %}
+{% block title %}Privacy{% endblock %}
+
+{% block body %}
+    <div class="container page-adjust">
+        <div class="row">
+            <div class="card w-100">
+                <div class="card-header bg-primary">
+                <div class="d-flex">
+                    <div class="mr-auto p-2">Privacy</div>
+                </div>
+            </div>
+                <div class="card-body">
+                    <ol>
+                        <li>No personal data is collected.</li>
+                        <li>No Backup of data so once deleted your data is permanently deleted</li>
+                        <li>You see all data about you; which is all of your tags</li>
+                        <li>Go to manage -> select all categories -> save (everythigng related to you will be deleted), as there are no backups or any additional data stored about you, you control everything!</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

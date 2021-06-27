@@ -1,0 +1,36 @@
+{% extends 'theme.html' %}
+{% import 'macro/display_helper.html' as helper %}
+{% block title %}About{% endblock %}
+
+{% block body %}
+    <div class="container page-adjust">
+        <div class="row">
+            <div class="card w-100">
+                <div class="card-header bg-primary">
+                <div class="d-flex">
+                    <div class="mr-auto p-2">About</div>
+                </div>
+            </div>
+                <div class="card-body">
+                    I created `Save Tags` for my personal use as i was tired of using excel or other simple
+                    note taking apps for my specific use. I thought of sharing with others and since i need to
+                    pay for the hosting i have enabled some ads on it. If you find the site useful please support
+                    me via clicking ads or less famous option pay for coffee/tea/beer.
+
+                    <br><br>
+                    Your support will help :)
+
+                    <br><br>
+                    Beautiful logo created by <a href="https://www.instagram.com/the.90s.soul/?hl=en">Yashika Mhatre</a>
+                    <br><br>
+                    <img src="{{ url_for('static', filename='stf.png') }}" width="128" height="128">
+                    <br>
+                    <br>
+                    <br>
+                    <br>
+                    <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="ninadmhatre" data-color="#40DCA5" data-emoji=""  data-font="Poppins" data-text="Buy me a coffee/beer" data-outline-color="#000000" data-font-color="#ffffff" data-coffee-color="#FFDD00" ></script>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

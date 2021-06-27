@@ -1,0 +1,139 @@
+{% extends 'theme.html' %}
+{% import 'macro/display_helper.html' as helper %}
+
+{% block title %}Add Tags{% endblock %}
+
+{% block jquery %}
+
+    /*
+       TODO:
+        1. tags without spaces
+        2. max tags per category
+    */
+    $("#add_tags").submit(function(e) {
+        e.preventDefault();
+
+        var errCnt = 0;
+        var catArr = [];
+
+        for (var i = 0; i < 10; i++) {
+            var cat = $("input#cat_" + i);
+            var tag = $("input#tag_" + i);
+
+            var cat_len = cat.val().length;
+            var tag_len = tag.val().length;
+
+            if ( cat_len == 0 ) {
+                if ( tag_len != 0 ) {
+                    cat.addClass("has_error");
+                    errCnt++;
+                } else {
+                    cat.removeClass("has_error");
+                }
+            } else {
+                var catName = cat.val();
+                if ( catArr.indexOf(catName) != -1 ) {
+                    $.notify("Duplicate category [" + catName + "]!", "error");
+                    tag.addClass("has_error");
+                    errCnt++;
+                } else {
+                    tag.removeClass("has_error");
+                    catArr.push(catName);
+                }
+
+                if ( tag_len == 0 ) {
+                    tag.addClass("has_error");
+                } else {
+                    tag.removeClass("has_error");
+                }
+            }
+        }
+
+        if ( errCnt > 0 ) {
+            $.notify("validation failed, please check!!", "error");
+        } else {
+            e.currentTarget.submit();
+        }
+
+    });
+{% endblock %}
+
+{% block body %}
+    <div class="container page-adjust">
+        <div class="row">
+            <div class="card w-100">
+                <div class="card-header bg-primary">
+                <div class="d-flex">
+                    <div class="mr-auto p-2">Add New Tags</div>
+                    <div class="p-2">
+                        <a class="text-right text-dark" href="https://emojipedia.org/" target="_blank">Want to add emojis?</a>
+                    </div>
+                </div>
+            </div>
+                <div class="card-body">
+                    <div class="alert alert-primary" role="alert">
+                        <ol>
+                            <li><h5>You can add maximum 10 categories and up to 30 comma separated tags per category</h5></li>
+                            <li><h5>Do not start your tags with '#'!</h5></li>
+                            <li><h5>Each tag should 1 word and without [!, $, %, ^, &, *, +, ., #] characters</h5></li>
+                        </ol>
+                    </div>
+                    {% if not error %}
+                        {% if existing %}
+                            {% set more_allowed = 10 - existing|length %}
+                        {% else %}
+                            {% set more_allowed = 10 %}
+                        {% endif %}
+                        <div class="container">
+                        <form id="add_tags" action="" method="post" enctype="multipart/form-data">
+                            {{ helper.addCSRFToken() }}
+
+                            {% for cat in existing %}
+                                <div class="form-group row justify-content-between">
+                                    <input class="form-control col-3 cat" name="cat_{{ loop.index0 }}"
+                                           id="cat_{{ loop.index0 }}" value="{{ cat }}" title="{{ cat }}"
+                                           disabled="disabled"/>
+                                    <input class="form-control col-8 tag" name="tag_{{ loop.index0 }}"
+                                           id="tag_{{ loop.index0 }}" value="{{ existing[cat]|join(', ') }}"
+                                           disabled="disabled"/>
+                                </div>
+                            {% endfor %}
+
+                            {% for j in range(existing|length, 11) %}
+                                {% if failed_vals %}
+                                    {% set last_submitted_cat = failed_vals[j][0] %}
+                                    {% set last_submitted_tags = failed_vals[j][1] %}
+                                    {% set has_err = failed_vals[j][2] %}
+                                {% else %}
+                                    {% set last_submitted_cat = None %}
+                                    {% set last_submitted_tags = None %}
+                                    {% set has_err = False %}
+                                {% endif %}
+
+
+                                <div class="form-group row justify-content-between">
+                                    <input class="form-control col-3 cat" name="cat_{{ j }}" id="cat_{{ j }}"
+                                           type="text" placeholder="Category"
+                                           {%- if last_submitted_cat  %} value="{{ last_submitted_cat }}" {%- endif %}/>
+                                    <input  class="form-control col-8 tag {% if has_err -%} has_error {%- endif -%}" name="tag_{{ j }}" id="tag_{{ j }}"
+                                            type="text"
+                                            placeholder="Tags e.g water,rain,earth (note: do not start tags with '#')"
+                                            {%- if last_submitted_tags  %} value="{{ last_submitted_tags }}" {%- endif %}/>
+                                </div>
+                            {% endfor %}
+
+                            <div class="row justify-content-between">
+                                <button id="save" type="submit" class="btn btn-success">Save</button>
+                            </div>
+                        </form>
+                        </div>
+                    {% else %}
+                        {% for c in data %}
+                            <p>category : {{ c }} | tags: {{ data[c] }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,45 @@
+It was about 10 months back my journey with Python web development started with migrating few in-house applications to intranet site. Till now i only used Python to develop cross-platform command line tools and it was working fine. But when i started i had no idea where to start and how to go about it, well i did some web development but that was more of html / templatisation / little bit of CSS and JQuery. But nothing from scratch so this was really a time to find more about the web frameworks in Python.
+
+Even if you have not heard about the Python chances are that you have heard about "Django", a MVC based web development framework in Python.
+
+<strong>More famous, more complicated</strong>
+
+"pip" is the friend, installed latest Django and started to learn about it. Django official website has good documentation about it. I started reading and playing around it after spending 1 day i was no where near creating 1 page which connects to database and displays all of table rows (Without using ORM). Still i spent another day around creating template but getting something right out of DB and on screen is not as easy as it may sound.
+
+<strong>Simplicity at its best</strong>
+
+At the end of second day, i was already started out to look for alternative for Django as i knew learning curve for Django is steep and i don`t have that much of time to get it ready and deliver the product. So i landed on Flask website, really plain website with very good documentation after going though the documentation i decided to have a play with Flask. I got it installed and i started the tutorial, what a relief things are so simple (<em>you have to consider that i am not a seasoned web developer, so i was looking for something very simple to start with!</em>). <strong>Django</strong> asked to things in one specific way where as <strong>Flask</strong> was do as you want,which i really liked.
+
+After 1 day with Flask, i was ready with couple of page and all working as expected. Pages are displayed like i wanted and most importantly it was working!
+
+<strong>Running...</strong>
+
+One of the best choice you have to run Flask based app is <strong>"gunicorn" </strong>but sad part is its only Linux based. I had to access the windows shared folder which is not possible (<em>it possible but not in the restricted environment). </em>So now started playing with web server tools, nginx &amp; apache were out of question as these tools are not allowed. Hence only python based web server were only choices. Tried CheeryPy &amp; Tornado both worked well but then some more research reveled that more sites are hosted on Tornado so i decided to go ahead with Tornado.
+
+<strong>Performance matters</strong>
+
+When i am done with the website, one obvious thing we check is to see how responsive the site is and there are many tools for this, JMeter is the free and famous tool. I tried few runs with it and it showed that site was working even with 100 requests within 10 seconds but response time was horrible. It was 50 Sec. that`s not acceptable. So now began the search for performance improvement.
+
+<strong>Bad Design</strong>
+
+One thing we end up doing is, we want something to be running rather than having something which is perfect but not doing what you want. So i was with Flask app which was doing what i wanted but absolutely crap when looked at the backend. This was because when i started it was very small application but as i started writing other parts it became big with multiple modules and sharing information between the modules was getting kind of tricky. Actually i was under impression that i am using Flask`s "blueprint" to develop application but i was not!
+
+There is very famous pattern when you need only single instance, <strong>Singleton! </strong>Even i wanted to have only single entry point to connect to database and share that DB connection across multiple modules, but as i was not using the "Flask blueprint" i was actually creating multiple objects and it was so bad that i was really creating 1 connection to DB on each page rendering. Then came the re-factoring and changed the application structure as suggested by "Flask Blueprint" and after that page performance was increased by 5-10x.
+
+<strong>Bootstrap</strong>
+
+Then came the time where my site was working beautifully but was not looking good, how would you sell something that`s not good looking. Then came the Bootstrap, HTML/CSS framework. Integrating Bootstrap styling to my website was piece of cake its very simple. So now i have a site that not only works well but also looks good.
+
+<b>Everyone deserves a 2nd chance</b>
+
+So after 4 months with my site working fine with the Flask, i decide to see how much efforts are required to move site from Flask to Django, and i started playing again with Django and not sure how but i manged to get couple of pages on Django with connecting to DB (No ORM), Same look with bootstrap (with serving static files) and it was all good. Not sure how it worked so easily with Django this time or maybe i am more used to exploring things and having done once for Flask made it easy with Django.
+
+<strong>Conclusion</strong>
+
+Flask is really suitable for small/medium applications, it`s very easy to get started. It has lot of plugins which makes it very easy to expand the functionality provided by Flask.
+
+Django on other hand is full featured stack, it has everything built-in from template framework, ORM, many middle wares and MVC approach.
+
+Maybe couple of more days with Django and i would have got hang of it but i decided to stop it due to the timelines. But i think i understand both the frameworks now. Its always good to learn something new...
+
+Note: When i write "Playing", its called doing POC :)
