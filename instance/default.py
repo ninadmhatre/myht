@@ -8,7 +8,7 @@ DEBUG = True
 LOG_QUERIES = False
 SECRET_KEY = "5nwxi8h9H5)GMl0GR_9ObJXQwdoMo}"
 PORT = 22000
-ADMIN_MAIL = "ninad.mhatre@gmail.com"
+ADMIN_MAIL = ""
 SESSION_TIMEOUT = timedelta(minutes=240)
 TESTING=True
 
@@ -25,18 +25,18 @@ LOG_COPIES = 5
 ADMIN_USERS = ("ninad.mhatre@gmail.com",)
 
 GOOGLE_CLIENT_ID = (
-    "526235291815-0gcbkrkttfoas4hubl9pphc7j55v4519.apps.googleusercontent.com"
+    ""
 )
-GOOGLE_CLIENT_SECRET = "2QkkTUUUdv-sTwoAtENx89Ko"
+GOOGLE_CLIENT_SECRET = ""
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 
 # URL's
-FACEBOOK = "https://www.facebook.com/ninad.mhatre"
-GOOGLE_PLUS = "https://plus.google.com/+ninadmhatre"
-GIT_HUB = "https://github.com/ninadmhatre/"
-LINKED_IN = "https://in.linkedin.com/in/ninadmhatre"
-PERSONAL_EMAIL = "ninad.mhatre@gmail.com"
+FACEBOOK = ""
+GOOGLE_PLUS = ""
+GIT_HUB = ""
+LINKED_IN = ""
+PERSONAL_EMAIL = ""
 
 # Dashboard
 DASHBOARD_MODS = "dashboard_mods"
